@@ -54,6 +54,19 @@ def validate_email(value):
     
     return value
 
+def validate_email_login(value):
+    if not value or not value.strip():
+        raise ValueError("Email is required and cannot be empty.")
+    
+    if value != value.strip():
+        raise ValueError("Email cannot have leading or trailing spaces.")
+    regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    
+    if not re.match(regex, value):
+        raise ValueError("Invalid Email Format")
+    
+    return value
+
 def validate_password(value):
     if not value or not value.strip():
         raise ValueError("Password is required and cannot be empty.")
