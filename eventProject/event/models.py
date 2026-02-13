@@ -24,6 +24,7 @@ class Category(models.Model):
 
 class EventTag(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    isActive = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -50,8 +51,8 @@ class Event(models.Model):
     state = models.CharField(max_length=20)
     city = models.CharField(max_length=15)
     venue = models.CharField(max_length=200)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
     is_active = models.BooleanField(default=True)
     short_description = models.CharField(max_length=255)
     long_description = models.TextField()
