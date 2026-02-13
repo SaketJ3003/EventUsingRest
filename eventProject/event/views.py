@@ -1,10 +1,11 @@
 from django.db.models import F, Q
+from django.db.models.functions import Greatest
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.exceptions import NotFound
-from .serializers import UserSerializer, CategorySerializer, EventSerializer, LoginSerializer, RefreshTokenSerializer
-from .models import Category, Event
+from .serializers import UserSerializer, CategorySerializer, EventTagSerializer, EventSerializer, LoginSerializer, RefreshTokenSerializer
+from .models import Category, EventTag, Event
 
 
 class SignUpViewset(viewsets.ViewSet):
@@ -98,6 +99,22 @@ class CategoryViewSet(viewsets.ViewSet):
         except Category.DoesNotExist:
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+    def partial_update(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can update categories.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            category = Category.objects.get(pk=pk)
+            serializer = CategorySerializer(category, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Category.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
     def destroy(self, request, pk=None):
         if not request.user.is_staff:
             return Response(
@@ -109,6 +126,80 @@ class CategoryViewSet(viewsets.ViewSet):
             category.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Category.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class EventTagViewSet(viewsets.ViewSet): 
+    permission_classes = [AllowAny]
+
+    def list(self, request):
+        tags = EventTag.objects.all()
+        serializer = EventTagSerializer(tags, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can create tags.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer = EventTagSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def retrieve(self, request, pk=None):
+        try:
+            tag = EventTag.objects.get(pk=pk)
+            serializer = EventTagSerializer(tag)
+            return Response(serializer.data)
+        except EventTag.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    def update(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can update tags.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            tag = EventTag.objects.get(pk=pk)
+            serializer = EventTagSerializer(tag, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except EventTag.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    def partial_update(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can update tags.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            tag = EventTag.objects.get(pk=pk)
+            serializer = EventTagSerializer(tag, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except EventTag.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    def destroy(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can delete tags.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            tag = EventTag.objects.get(pk=pk)
+            tag.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except EventTag.DoesNotExist:
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -157,10 +248,9 @@ class EventViewSet(viewsets.ViewSet):
             status_filter = status_filter.lower() in ['true', '1', 'yes', 'active']
             events = events.filter(is_active=status_filter)
         
-        # Remove duplicate results from joins
         events = events.distinct()
         
-        serializer = EventSerializer(events, many=True)
+        serializer = EventSerializer(events, many=True, context={'request': request})
         return Response(serializer.data)
 
     def create(self, request):
@@ -169,7 +259,7 @@ class EventViewSet(viewsets.ViewSet):
                 {'detail': 'Only admin users can create events.'},
                 status=status.HTTP_403_FORBIDDEN
             )
-        serializer = EventSerializer(data=request.data)
+        serializer = EventSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -177,11 +267,13 @@ class EventViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, slug=None):
         event = self.get_object(slug)
+        event.views_count +=1
+        event.save()
 
-        Event.objects.filter(slug=slug).update(views_count=F('views_count') + 1)
+        # Event.objects.filter(slug=slug).update(views_count=F('views_count') + 1)
         
-        event.refresh_from_db()
-        serializer = EventSerializer(event)
+        # event.refresh_from_db()
+        serializer = EventSerializer(event, context={'request': request})
         return Response(serializer.data)
 
     def update(self, request, slug=None):
@@ -191,7 +283,7 @@ class EventViewSet(viewsets.ViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         event = self.get_object(slug)
-        serializer = EventSerializer(event, data=request.data)
+        serializer = EventSerializer(event, data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -204,7 +296,7 @@ class EventViewSet(viewsets.ViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         event = self.get_object(slug)
-        serializer = EventSerializer(event, data=request.data, partial=True)
+        serializer = EventSerializer(event, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework_simplejwt.exceptions import InvalidToken
 from .validators import validate_email, validate_email_login,validate_name,validate_password,validate_username
 from .models import Category, Event, UserToken, EventTag, EventImages
+import os
 
 class UserSerializer(serializers.Serializer):
     username = serializers.CharField(trim_whitespace=False)
@@ -149,47 +150,99 @@ class RefreshTokenSerializer(serializers.Serializer):
 
 class CategorySerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(max_length=100)
+    name = serializers.CharField(allow_blank = True,trim_whitespace=False, max_length=100)
     isActive =serializers.BooleanField(default=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
+
+    def validate_name(self,value):
+        try:
+            return validate_name(value, allow_spaces=False, field_name="name")
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
 
     def create(self, validated_data):
         return Category.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
+        print(instance)
         instance.name = validated_data.get('name', instance.name)
+        instance.save()
+        return instance
+
+
+class EventTagSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(allow_blank = True,trim_whitespace=False, max_length=100)
+    isActive = serializers.BooleanField(default=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+
+    def validate_name(self,value):
+        try:
+            return validate_name(value, allow_spaces=False, field_name="name")
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
+
+    def create(self, validated_data):
+        return EventTag.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.isActive = validated_data.get('isActive', instance.isActive)
         instance.save()
         return instance
 
 
 class EventSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField(max_length=200)
-    slug = serializers.SlugField(read_only=True)
-    feature_image = serializers.ImageField(required=False, allow_null=True)
-    category = serializers.JSONField()
-    tags = serializers.SerializerMethodField()
-    extraImages = serializers.SerializerMethodField()
-    country = serializers.CharField(max_length=100)
-    state = serializers.CharField(max_length=100)
-    city = serializers.CharField(max_length=100)
-    venue = serializers.CharField(max_length=200)
-    start_time = serializers.DateTimeField()
-    end_time = serializers.DateTimeField()
-    is_active = serializers.BooleanField()
-    short_description = serializers.CharField(max_length=255)
-    long_description = serializers.CharField()
+    title = serializers.CharField(allow_blank = True, trim_whitespace=False, max_length=200)
+    slug = serializers.SlugField(required=False, allow_blank=True)
+    feature_image = serializers.FileField(required = False)
+    category = serializers.ListField(child=serializers.IntegerField(), required=True, allow_empty=False, write_only=True)
+    tags = serializers.ListField(child=serializers.IntegerField(), required=False, allow_empty=True, write_only=True)
+    extraImages = serializers.ListField(child=serializers.FileField(), required=False, allow_empty=False, write_only=True)
+    country = serializers.CharField(trim_whitespace=False, max_length=100)
+    state = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=100)
+    city = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=100)
+    venue = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=200)
+    start_time = serializers.TimeField()
+    end_time = serializers.TimeField()
+    is_active = serializers.BooleanField(default=True)
+    short_description = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=255)
+    long_description = serializers.CharField(trim_whitespace=False, allow_blank = True)
     views_count = serializers.IntegerField(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
 
-    def get_tags(self, obj):
-        return list(obj.tags.values_list('name', flat=True))
+    def validate_country(self,value):
+        try:
+            return validate_name(value, allow_spaces=True, field_name="country")
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
+    
+    def validate_city(self,value):
+        try:
+            return validate_name(value, allow_spaces=True, field_name="city")
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
+    
+    def validate_state(self,value):
+        try:
+            return validate_name(value, allow_spaces=True, field_name="state")
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
+
+    def get_feature_image(self, obj):
+        if obj.feature_image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.feature_image.url)
+            return obj.feature_image.url
+        return None
 
     def get_extraImages(self, obj):
         request = self.context.get('request')
-        images = list(obj.extraImages.values_list('image', flat=True))
         images = list(obj.extraImages.values_list('image', flat=True))
         
         if request:
@@ -197,58 +250,193 @@ class EventSerializer(serializers.Serializer):
         return [f'/media/{image}' for image in images]
 
     def to_internal_value(self, data):
-        self.tags_data = data.pop('tags', [])
-        self.images_data = data.pop('extraImages', [])
-        return super().to_internal_value(data)
+        result = super().to_internal_value(data)
+        
+        self.tags_data = result.pop('tags', [])
+        self.images_data = result.pop('extraImages', [])
+        
+        return result
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         
         if instance and hasattr(instance, 'category'):
-            ret['category'] = list(instance.category.values_list('name', flat=True))
+            ret['category'] = list(instance.category.values('id', 'name','isActive'))
+        
+        if instance and hasattr(instance, 'tags'):
+            ret['tags'] = list(instance.tags.values('id', 'name','isActive'))
         
         request = self.context.get('request')
-        if ret.get('feature_image') and request:
-            ret['feature_image'] = request.build_absolute_uri(f'/media/{ret["feature_image"]}')
         
+        if instance and hasattr(instance, 'feature_image') and instance.feature_image:
+            if request:
+                ret['feature_image'] = request.build_absolute_uri(instance.feature_image.url)
+            else:
+                ret['feature_image'] = instance.feature_image.url
+        
+        if instance and hasattr(instance, 'extraImages'):
+            images = list(instance.extraImages.values_list('image', flat=True))
+            if request:
+                ret['extraImages'] = [request.build_absolute_uri(f'/media/{image}') for image in images]
+            else:
+                ret['extraImages'] = [f'/media/{image}' for image in images]
+
         return ret
+    
+    def validate_title(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("Title cannot be empty.")
+        
+        if value != value.strip():
+            raise ValueError(f"Title cannot have leading or trailing spaces.")
+        
+        if len(value) < 3:
+            raise serializers.ValidationError("Title must be at least 3 characters long.")
+        
+        if len(value) > 200:
+            raise serializers.ValidationError("Title cannot exceed 200 characters.")
+        
+        import re
+        if not re.match(r'^[a-zA-Z0-9\s\-\&\.\,\:\'\"]+$', value):
+            raise serializers.ValidationError("Title contains invalid characters. Only letters, numbers, spaces, and basic punctuation are allowed.")
+        
+
+        return value.title()
     
     def validate_category(self, value):
         if not value or not isinstance(value, list):
-            raise serializers.ValidationError("Category must be a list of category names.")
+            raise serializers.ValidationError("Category must be a list of category IDs.")
         
         if len(value) == 0:
             raise serializers.ValidationError("At least one category is required.")
         
-        for category_name in value:
-            if not category_name or not category_name.strip():
-                raise serializers.ValidationError("Category name cannot be empty.")
+        for category_id in value:
+            if not isinstance(category_id, int):
+                raise serializers.ValidationError("Category ID must be an integer.")
             
-            if not Category.objects.filter(name=category_name).exists():
-                raise serializers.ValidationError(f"Category '{category_name}' does not exist.")
+            if not Category.objects.filter(id=category_id).exists():
+                raise serializers.ValidationError(f"Category with ID {category_id} does not exist.")
+        
+        return value
+    
+    def validate_tags(self, value):
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Tags must be a list of tag IDs.")
+        
+        for tag_id in value:
+            if not isinstance(tag_id, int):
+                raise serializers.ValidationError("Tag ID must be an integer.")
+            
+            if not EventTag.objects.filter(id=tag_id).exists():
+                raise serializers.ValidationError(f"Tag with ID {tag_id} does not exist.")
         
         return value
 
+    def validate_slug(self, value):
+        if not value or not value.strip():
+            return None
+        
+        value = value.lower().strip()
+        
+        if len(value) < 3:
+            raise serializers.ValidationError("Slug must be at least 3 characters long.")
+        
+        import re
+        if not re.match(r'^[a-z0-9]([a-z0-9\-]*[a-z0-9])?$', value):
+            raise serializers.ValidationError("Slug can only contain lowercase letters, numbers, and hyphens. It must start and end with alphanumeric characters.")
+        
+        if '--' in value:
+            raise serializers.ValidationError("Slug cannot contain consecutive hyphens.")
+        
+        if Event.objects.filter(slug=value).exists():
+            raise serializers.ValidationError(f"The slug '{value}' is already taken. Please use a different slug.")
+        
+        return value
+
+    def validate_extraImages(self, value):
+        if not value or len(value) == 0:
+            raise serializers.ValidationError("At least one extra image is required.")
+        
+        allowed_extensions = ['png', 'svg', 'jpg', 'jpeg']
+        max_size= 5* 1024 * 1024
+        
+        for image in value:
+            file_ext = os.path.splitext(image.name)[1].lower().lstrip('.')
+            if file_ext not in allowed_extensions:
+                raise serializers.ValidationError(
+                    f"Invalid file type '{file_ext}' for '{image.name}'. Allowed types: png, svg, jpg, jpeg."
+                )
+            
+            if image.size > max_size:
+                size_mb = image.size / (1024 * 1024)
+                raise serializers.ValidationError(
+                    f"File '{image.name}' is {size_mb:.2f}MB. Maximum file size is {max_size}MB."
+                )
+        
+        return value
+
+    def validate_feature_image(self, value):
+        allowed_extensions = ['png', 'svg', 'jpg', 'jpeg']
+        max_size= 5 * 1024 * 1024
+        
+        file_ext = os.path.splitext(value.name)[1].lower().lstrip('.')
+        if file_ext not in allowed_extensions:
+            raise serializers.ValidationError(
+                f"Invalid file type '{file_ext}'. Allowed types: png, svg, jpg, jpeg."
+            )
+        
+        if value.size > max_size:
+            size_mb = value.size / (1024 * 1024)
+            raise serializers.ValidationError(
+                f"File size is {size_mb:.2f}MB. Maximum file size is {max_size}MB."
+            )
+        
+        return value
+
+    def validate_short_description(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("Short description cannot be empty.")
+                
+        if len(value) < 10:
+            raise serializers.ValidationError("Short description must be at least 10 characters long.")
+        
+        if len(value) > 255:
+            raise serializers.ValidationError("Short description cannot exceed 255 characters.")
+        
+        return value.strip()
+
+    def validate_long_description(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("Long description cannot be empty.")
+                
+        if len(value) < 20:
+            raise serializers.ValidationError("Long description must be at least 20 characters long.")
+        
+        return value.strip()
+
     def create(self, validated_data):
-        category_names = validated_data.pop('category')
-        tag_names = getattr(self, 'tags_data', [])
+        category_ids = validated_data.pop('category')
+        tag_ids = getattr(self, 'tags_data', [])
         images_data = getattr(self, 'images_data', [])
         
-        categories = []
-        for category_name in category_names:
-            try:
-                category = Category.objects.get(name=category_name)
-                categories.append(category)
-            except Category.DoesNotExist:
-                raise serializers.ValidationError(f"Category '{category_name}' does not exist.")
+        slug = validated_data.pop('slug', None)
+        if not slug:
+            title = validated_data.get('title')
+            slug = slugify(title)
+            
+            base_slug = slug
+            counter = 1
+            while Event.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
         
-        tags = []
-        for tag_name in tag_names:
-            if tag_name and tag_name.strip():
-                tag, created = EventTag.objects.get_or_create(
-                    name=tag_name
-                )
-                tags.append(tag)
+        validated_data['slug'] = slug
+        
+        categories = Category.objects.filter(id__in=category_ids)
+        if len(categories) != len(category_ids):
+            raise serializers.ValidationError("One or more category IDs do not exist.")
+        
+        tags = EventTag.objects.filter(id__in=tag_ids) if tag_ids else []
         
         images = []
         if isinstance(images_data, list):
@@ -256,17 +444,7 @@ class EventSerializer(serializers.Serializer):
                 if image:
                     event_image = EventImages.objects.create(image=image)
                     images.append(event_image)
-        
-        title = validated_data.get('title')
-        generated_slug = slugify(title)
-        
-        if Event.objects.filter(slug=generated_slug).exists():
-            raise serializers.ValidationError({
-                'title': f"An event with title '{title}' already exists."
-            })
-        
-        validated_data['slug'] = generated_slug
-        
+
         event = Event.objects.create(**validated_data)
         
         event.category.set(categories)
@@ -278,36 +456,33 @@ class EventSerializer(serializers.Serializer):
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
         
-        if 'title' in validated_data:
-            instance.slug = slugify(validated_data['title'])
+        if 'slug' in validated_data and validated_data['slug']:
+            new_slug = validated_data['slug']
+            if new_slug != instance.slug and Event.objects.filter(slug=new_slug).exists():
+                raise serializers.ValidationError({'slug': f"A slug '{new_slug}' already exists."})
+            instance.slug = new_slug
+        else:
+            title = validated_data.get('title', instance.title)
+            instance.slug = slugify(title)
+        
+        validated_data.pop('slug', None)
         
         if 'feature_image' in validated_data:
             instance.feature_image = validated_data.get('feature_image')
         
         if 'category' in validated_data:
-            category_names = validated_data.get('category')
-            categories = []
-            for category_name in category_names:
-                try:
-                    category = Category.objects.get(name=category_name)
-                    categories.append(category)
-                except Category.DoesNotExist:
-                    raise serializers.ValidationError(f"Category '{category_name}' does not exist.")
-            
+            category_ids = validated_data.get('category')
+            categories = Category.objects.filter(id__in=category_ids)
+            if len(categories) != len(category_ids):
+                raise serializers.ValidationError("One or more category IDs do not exist.")
             instance.category.set(categories)
         
-        if hasattr(self, 'tags_data'):
-            tag_names = self.tags_data
-            tags = []
-            for tag_name in tag_names:
-                if tag_name and tag_name.strip():
-                    tag, created = EventTag.objects.get_or_create(
-                        name=tag_name
-                    )
-                    tags.append(tag)
+        if hasattr(self, 'tags_data') and self.tags_data:
+            tag_ids = self.tags_data
+            tags = EventTag.objects.filter(id__in=tag_ids)
             instance.tags.set(tags)
         
-        if hasattr(self, 'images_data'):
+        if hasattr(self, 'images_data') and self.images_data:
             images_data = self.images_data
             images = []
             if isinstance(images_data, list):
