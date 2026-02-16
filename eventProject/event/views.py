@@ -1,8 +1,9 @@
-from django.db.models import F, Q
-from django.db.models.functions import Greatest
+from django.db.models import Q
+from django.shortcuts import render, get_object_or_404
+from django.views import View
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
 from .serializers import UserSerializer, CategorySerializer, EventTagSerializer, EventSerializer, LoginSerializer, RefreshTokenSerializer
 from .models import Category, EventTag, Event
@@ -248,7 +249,6 @@ class EventViewSet(viewsets.ViewSet):
             status_filter = status_filter.lower() in ['true', '1', 'yes', 'active']
             events = events.filter(is_active=status_filter)
         
-        events = events.distinct()
         
         serializer = EventSerializer(events, many=True, context={'request': request})
         return Response(serializer.data)
@@ -311,3 +311,18 @@ class EventViewSet(viewsets.ViewSet):
         event = self.get_object(slug)
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class EventListView(View):
+    def get(self, request):
+        events = Event.objects.filter(is_active=True).order_by('event_date')
+        context = {'events': events}
+        return render(request, 'event/events_list.html', context)
+
+
+class EventDetailView(View):
+    def get(self, request, slug):
+        event = get_object_or_404(Event, slug=slug, is_active=True)
+        event.views_count += 1
+        event.save()
+        context = {'event': event}
+        return render(request, 'event/event_detail.html', context)

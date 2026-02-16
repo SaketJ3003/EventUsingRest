@@ -7,6 +7,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken
 from .validators import validate_email, validate_email_login,validate_name,validate_password,validate_username
 from .models import Category, Event, UserToken, EventTag, EventImages
 import os
+from datetime import date
 
 class UserSerializer(serializers.Serializer):
     username = serializers.CharField(trim_whitespace=False)
@@ -133,7 +134,7 @@ class RefreshTokenSerializer(serializers.Serializer):
             except UserToken.DoesNotExist:
                 raise serializers.ValidationError("No active session found. Please log in again.")
             
-            # Generated new access token
+            # Generated new access token from Refresh Token
             new_access = str(refresh.access_token)
             
             # Storing it in database
@@ -150,7 +151,7 @@ class RefreshTokenSerializer(serializers.Serializer):
 
 class CategorySerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(allow_blank = True,trim_whitespace=False, max_length=100)
+    name = serializers.CharField(allow_blank = True,trim_whitespace=False, max_length=20)
     isActive =serializers.BooleanField(default=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
@@ -173,7 +174,7 @@ class CategorySerializer(serializers.Serializer):
 
 class EventTagSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(allow_blank = True,trim_whitespace=False, max_length=100)
+    name = serializers.CharField(allow_blank = True,trim_whitespace=False, max_length=20)
     isActive = serializers.BooleanField(default=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
@@ -196,16 +197,17 @@ class EventTagSerializer(serializers.Serializer):
 
 class EventSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField(allow_blank = True, trim_whitespace=False, max_length=200)
+    title = serializers.CharField(allow_blank = True, trim_whitespace=False, max_length=100)
     slug = serializers.SlugField(required=False, allow_blank=True)
-    feature_image = serializers.FileField(required = False)
-    category = serializers.ListField(child=serializers.IntegerField(), required=True, allow_empty=False, write_only=True)
-    tags = serializers.ListField(child=serializers.IntegerField(), required=False, allow_empty=True, write_only=True)
-    extraImages = serializers.ListField(child=serializers.FileField(), required=False, allow_empty=False, write_only=True)
-    country = serializers.CharField(trim_whitespace=False, max_length=100)
-    state = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=100)
-    city = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=100)
+    feature_image = serializers.FileField(required = True)
+    category = serializers.ListField(child=serializers.IntegerField(), required=True, allow_empty = False, write_only=True)
+    tags = serializers.ListField(child=serializers.IntegerField(), required=False, allow_empty = True, write_only=True)
+    extraImages = serializers.ListField(child=serializers.FileField(), required=False, allow_empty =False, write_only=True)
+    country = serializers.CharField(trim_whitespace=False, max_length=30)
+    state = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=20)
+    city = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=15)
     venue = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=200)
+    event_date = serializers.DateField()
     start_time = serializers.TimeField()
     end_time = serializers.TimeField()
     is_active = serializers.BooleanField(default=True)
@@ -214,6 +216,25 @@ class EventSerializer(serializers.Serializer):
     views_count = serializers.IntegerField(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
+
+    def validate(self, data):
+        start_time = data.get('start_time')
+        end_time = data.get('end_time')
+        event_date = data.get('event_date')
+        
+        if start_time and end_time:
+            if end_time <= start_time:
+                raise serializers.ValidationError({
+                    'end_time': "End Time should be greater than start time."
+                })        
+        return data
+    
+    def validate_event_date(self,value):
+        if value:
+            if value <= date.today():
+                raise serializers.ValidationError({
+                    'event_date': "Event Date should be greater than Today's Date"
+                })
 
     def validate_country(self,value):
         try:
@@ -258,30 +279,30 @@ class EventSerializer(serializers.Serializer):
         return result
 
     def to_representation(self, instance):
-        ret = super().to_representation(instance)
+        res = super().to_representation(instance)
         
         if instance and hasattr(instance, 'category'):
-            ret['category'] = list(instance.category.values('id', 'name','isActive'))
+            res['category'] = list(instance.category.values('id', 'name','isActive'))
         
         if instance and hasattr(instance, 'tags'):
-            ret['tags'] = list(instance.tags.values('id', 'name','isActive'))
+            res['tags'] = list(instance.tags.values('id', 'name','isActive'))
         
         request = self.context.get('request')
         
         if instance and hasattr(instance, 'feature_image') and instance.feature_image:
             if request:
-                ret['feature_image'] = request.build_absolute_uri(instance.feature_image.url)
+                res['feature_image'] = request.build_absolute_uri(instance.feature_image.url)
             else:
-                ret['feature_image'] = instance.feature_image.url
+                res['feature_image'] = instance.feature_image.url
         
         if instance and hasattr(instance, 'extraImages'):
             images = list(instance.extraImages.values_list('image', flat=True))
             if request:
-                ret['extraImages'] = [request.build_absolute_uri(f'/media/{image}') for image in images]
+                res['extraImages'] = [request.build_absolute_uri(f'/media/{image}') for image in images]
             else:
-                ret['extraImages'] = [f'/media/{image}' for image in images]
+                res['extraImages'] = [f'/media/{image}' for image in images]
 
-        return ret
+        return res
     
     def validate_title(self, value):
         if not value or not value.strip():
@@ -370,7 +391,7 @@ class EventSerializer(serializers.Serializer):
             if image.size > max_size:
                 size_mb = image.size / (1024 * 1024)
                 raise serializers.ValidationError(
-                    f"File '{image.name}' is {size_mb:.2f}MB. Maximum file size is {max_size}MB."
+                    f"Image Size is {size_mb:.2f}MB. Maximum file size is 5MB."
                 )
         
         return value
@@ -388,7 +409,7 @@ class EventSerializer(serializers.Serializer):
         if value.size > max_size:
             size_mb = value.size / (1024 * 1024)
             raise serializers.ValidationError(
-                f"File size is {size_mb:.2f}MB. Maximum file size is {max_size}MB."
+                f"Image size is {size_mb:.2f}MB. Maximum file size is 5MB."
             )
         
         return value
