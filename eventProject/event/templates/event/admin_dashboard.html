@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <aside class="w-64 bg-gray-800 text-white flex flex-col">
+            <div class="p-6 border-b border-gray-700">
+                <h1 class="text-2xl font-bold">Admin Panel</h1>
+            </div>
+            <nav class="flex-1 p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="/event/admin/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-700 text-white font-medium">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                            Categories
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/event/admin/tags/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                            Tags
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="p-4 border-t border-gray-700">
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-600 text-gray-300 hover:text-white transition">
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto">
+            <header class="bg-white shadow-sm">
+                <div class="px-8 py-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Events Dashboard</h2>
+                </div>
+            </header>
+
+            <div class="p-8">
+                <div id="successMessage" class="hidden mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800"></div>
+                <div id="errorMessage" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800"></div>
+
+                <div class="mb-6">
+                    <div class="flex gap-4 items-center flex-wrap">
+                        <input type="text" id="searchInput" placeholder="Search by name or slug..." 
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                            oninput="filterEvents()">
+                        <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onchange="filterEvents()">
+                            <option value="all">All Categories</option>
+                        </select>
+                        <select id="tagFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onchange="filterEvents()">
+                            <option value="all">All Tags</option>
+                        </select>
+                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onchange="filterEvents()">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <a href="/event/template/create-event/" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
+                            + Create Event
+                        </a>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Views</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTableBody" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">Loading events...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let allEvents = [];
+        let allCategories = [];
+        let allTags = [];
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            window.location.href = '/event/template/events/';
+        }
+
+        async function checkAdmin() {
+            const accessToken = localStorage.getItem('access_token');
+            if (!accessToken) {
+                window.location.href = '/event/template/login/';
+                return false;
+            }
+
+            try {
+                const response = await fetch('/event/user-status/', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (!data.is_admin) {
+                        alert('Access denied. Admin only.');
+                        window.location.href = '/event/template/events/';
+                        return false;
+                    }
+                    return true;
+                } else {
+                    window.location.href = '/event/template/login/';
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                window.location.href = '/event/template/login/';
+                return false;
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const response = await fetch('/event/categories/');
+                if (response.ok) {
+                    allCategories = await response.json();
+                    populateCategoryFilter();
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        async function loadTags() {
+            try {
+                const response = await fetch('/event/tags/');
+                if (response.ok) {
+                    allTags = await response.json();
+                    populateTagFilter();
+                }
+            } catch (error) {
+                console.error('Error loading tags:', error);
+            }
+        }
+
+        function populateCategoryFilter() {
+            const select = document.getElementById('categoryFilter');
+            select.innerHTML = '<option value="all">All Categories</option>';
+            allCategories.forEach(category => {
+                select.innerHTML += `<option value="${category.id}">${category.name}</option>`;
+            });
+        }
+
+        function populateTagFilter() {
+            const select = document.getElementById('tagFilter');
+            select.innerHTML = '<option value="all">All Tags</option>';
+            allTags.forEach(tag => {
+                select.innerHTML += `<option value="${tag.id}">${tag.name}</option>`;
+            });
+        }
+
+        async function loadEvents() {
+            try {
+                const accessToken = localStorage.getItem('access_token');
+                const response = await fetch('/event/events/', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    allEvents = await response.json();
+                    renderEvents(allEvents);
+                } else {
+                    showError('Failed to load events');
+                }
+            } catch (error) {
+                console.error('Error loading events:', error);
+                showError('Error loading events');
+            }
+        }
+
+        function renderEvents(events) {
+            const tbody = document.getElementById('eventsTableBody');
+            
+            if (events.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No events found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = events.map(event => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">${event.title}</div>
+                        <div class="text-sm text-gray-500">${event.slug}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${event.event_date || 'N/A'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${event.city?.name || 'N/A'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${event.views_count || 0}</td>
+                    <td class="px-6 py-4">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" ${event.is_active ? 'checked' : ''} 
+                                onchange="toggleStatus('${event.slug}', this.checked)" 
+                                class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium space-x-2">
+                        <a href="/event/template/events/${event.slug}/" target="_blank" class="text-blue-600 hover:text-blue-900">View</a>
+                        <a href="/event/admin/edit-event/?slug=${event.slug}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                        <button onclick="deleteEvent('${event.slug}')" class="text-red-600 hover:text-red-900">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterEvents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const tagFilter = document.getElementById('tagFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filtered = allEvents.filter(event => {
+                const matchesSearch = event.title.toLowerCase().includes(searchTerm) || 
+                                    event.slug.toLowerCase().includes(searchTerm);
+                
+                const matchesCategory = categoryFilter === 'all' || 
+                                      (event.category && event.category.some(cat => cat.id == categoryFilter));
+                
+                const matchesTag = tagFilter === 'all' || 
+                                 (event.tags && event.tags.some(tag => tag.id == tagFilter));
+                
+                const matchesStatus = statusFilter === 'all' || 
+                                    (statusFilter === 'active' && event.is_active) ||
+                                    (statusFilter === 'inactive' && !event.is_active);
+                
+                return matchesSearch && matchesCategory && matchesTag && matchesStatus;
+            });
+
+            renderEvents(filtered);
+        }
+
+        async function toggleStatus(eventSlug, isActive) {
+            try {
+                const accessToken = localStorage.getItem('access_token');
+                
+                const response = await fetch(`/event/events/${eventSlug}/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ is_active: isActive })
+                });
+
+                if (response.ok) {
+                    showSuccess(`Event ${isActive ? 'activated' : 'deactivated'} successfully`);
+                    loadEvents();
+                } else {
+                    showError('Failed to update event status');
+                    loadEvents();
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+                showError('Error updating event status');
+                loadEvents();
+            }
+        }
+
+        async function deleteEvent(eventSlug) {
+            if (!confirm('Are you sure you want to delete this event?')) return;
+
+            try {
+                const accessToken = localStorage.getItem('access_token');
+                const response = await fetch(`/event/events/${eventSlug}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    showSuccess('Event deleted successfully');
+                    loadEvents();
+                } else {
+                    showError('Failed to delete event');
+                }
+            } catch (error) {
+                console.error('Error deleting event:', error);
+                showError('Error deleting event');
+            }
+        }
+
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.classList.remove('hidden');
+            document.getElementById('errorMessage').classList.add('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            if (Array.isArray(message)) {
+                el.innerHTML = message.map(msg => `<div class="mb-2 last:mb-0">• ${msg}</div>`).join('');
+            } else {
+                el.textContent = message;
+            }
+            el.classList.remove('hidden');
+            document.getElementById('successMessage').classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAdmin = await checkAdmin();
+            if (isAdmin) {
+                await loadCategories();
+                await loadTags();
+                loadEvents();
+            }
+        });
+    </script>
+</body>
+</html>

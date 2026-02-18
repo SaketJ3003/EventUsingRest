@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 
 
 class UserToken(models.Model):
@@ -14,9 +15,15 @@ class UserToken(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=20, unique=True)
+    slug = models.SlugField(unique=True, blank=True)
     isActive = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -24,9 +31,15 @@ class Category(models.Model):
 
 class EventTag(models.Model):
     name = models.CharField(max_length=20, unique=True)
+    slug = models.SlugField(unique=True, blank=True)
     isActive = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -40,6 +53,67 @@ class EventImages(models.Model):
     def __str__(self):
         return f"Event Image - {self.id}"
 
+
+class Country(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(unique=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Countries"
+        ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class State(models.Model):
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(blank=True)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='states')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['name', 'country']
+        ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.name}, {self.country.name}"
+
+
+class City(models.Model):
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(blank=True)
+    state = models.ForeignKey(State, on_delete=models.CASCADE, related_name='cities')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Cities"
+        unique_together = ['name', 'state']
+        ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.name}, {self.state.name}"
+
+
 class Event(models.Model):
     title = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
@@ -47,9 +121,9 @@ class Event(models.Model):
     category = models.ManyToManyField(Category, related_name='events')
     tags = models.ManyToManyField(EventTag, related_name='events', blank=True)
     extraImages = models.ManyToManyField(EventImages, related_name='events', blank=True)
-    country = models.CharField(max_length=30)
-    state = models.CharField(max_length=20)
-    city = models.CharField(max_length=15)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name='events')
+    state = models.ForeignKey(State, on_delete=models.PROTECT, related_name='events')
+    city = models.ForeignKey(City, on_delete=models.PROTECT, related_name='events')
     venue = models.CharField(max_length=200)
     event_date = models.DateField()
     start_time = models.TimeField()

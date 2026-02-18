@@ -5,7 +5,7 @@ from django.utils.text import slugify
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework_simplejwt.exceptions import InvalidToken
 from .validators import validate_email, validate_email_login,validate_name,validate_password,validate_username
-from .models import Category, Event, UserToken, EventTag, EventImages
+from .models import Category, Event, UserToken, EventTag, EventImages, Country, State, City
 import os
 from datetime import date
 
@@ -59,30 +59,33 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(required=True, trim_whitespace=False)
     password = serializers.CharField(required=True, write_only=True)
 
+    def validate_email(self, value):
+        try:
+            return validate_email_login(value)
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
+    
+    def validate_password(self, value):
+        try:
+            return validate_password(value)
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
+        
     def validate(self, data):
         email = data.get('email')
         password = data.get('password')
-
-        try:
-            validate_email_login(email)
-        except ValueError as e:
-            raise serializers.ValidationError(str(e))
+        
+        errors = {}
         
         try:
-            validate_password(password)
-        except ValueError as e:
-            raise serializers.ValidationError(str(e))
+            user = User.objects.get(email=email)
+            if not user.check_password(password):
+                errors['password'] = "Invalid password."
+        except User.DoesNotExist:
+            errors['email'] = "Email does not exist. Please sign up first."
         
-
-        if email and password:
-            try:
-                user = User.objects.get(email=email)
-                if not user.check_password(password):
-                    raise serializers.ValidationError("Invalid password.")
-            except User.DoesNotExist:
-                raise serializers.ValidationError("Email Does Not Exist")
-        else:
-            raise serializers.ValidationError("Email and password are required.")
+        if errors:
+            raise serializers.ValidationError(errors)
 
         data['user'] = user
         return data
@@ -152,6 +155,7 @@ class RefreshTokenSerializer(serializers.Serializer):
 class CategorySerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(allow_blank = True,trim_whitespace=False, max_length=20)
+    slug = serializers.SlugField(read_only=True)
     isActive =serializers.BooleanField(default=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
@@ -175,6 +179,7 @@ class CategorySerializer(serializers.Serializer):
 class EventTagSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(allow_blank = True,trim_whitespace=False, max_length=20)
+    slug = serializers.SlugField(read_only=True)
     isActive = serializers.BooleanField(default=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
@@ -195,17 +200,51 @@ class EventTagSerializer(serializers.Serializer):
         return instance
 
 
+class CountrySerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=100)
+    slug = serializers.SlugField(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+
+
+class StateSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=100)
+    slug = serializers.SlugField(read_only=True)
+    country = serializers.IntegerField(write_only=True)
+    country_detail = serializers.SerializerMethodField(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+
+    def get_country_detail(self, obj):
+        return {'id': obj.country.id, 'name': obj.country.name}
+
+
+class CitySerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=100)
+    slug = serializers.SlugField(read_only=True)
+    state = serializers.IntegerField(write_only=True)
+    state_detail = serializers.SerializerMethodField(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+
+    def get_state_detail(self, obj):
+        return {'id': obj.state.id, 'name': obj.state.name, 'country': {'id': obj.state.country.id, 'name': obj.state.country.name}}
+
+
 class EventSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(allow_blank = True, trim_whitespace=False, max_length=100)
     slug = serializers.SlugField(required=False, allow_blank=True)
-    feature_image = serializers.FileField(required = True)
+    feature_image = serializers.FileField(required=False)
     category = serializers.ListField(child=serializers.IntegerField(), required=True, allow_empty = False, write_only=True)
     tags = serializers.ListField(child=serializers.IntegerField(), required=False, allow_empty = True, write_only=True)
-    extraImages = serializers.ListField(child=serializers.FileField(), required=False, allow_empty =False, write_only=True)
-    country = serializers.CharField(trim_whitespace=False, max_length=30)
-    state = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=20)
-    city = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=15)
+    extraImages = serializers.ListField(child=serializers.FileField(), required=False, allow_empty=True, write_only=True)
+    country = serializers.IntegerField(write_only=True)
+    state = serializers.IntegerField(write_only=True)
+    city = serializers.IntegerField(write_only=True)
     venue = serializers.CharField(trim_whitespace=False, allow_blank = True, max_length=200)
     event_date = serializers.DateField()
     start_time = serializers.TimeField()
@@ -229,30 +268,32 @@ class EventSerializer(serializers.Serializer):
                 })        
         return data
     
-    def validate_event_date(self,value):
+    def validate_event_date(self, value):
         if value:
             if value <= date.today():
-                raise serializers.ValidationError({
-                    'event_date': "Event Date should be greater than Today's Date"
-                })
+                raise serializers.ValidationError("Event Date should be greater than Today's Date")
+        return value
 
-    def validate_country(self,value):
-        try:
-            return validate_name(value, allow_spaces=True, field_name="country")
-        except ValueError as e:
-            raise serializers.ValidationError(str(e))
+    def validate_country(self, value):
+        if not value:
+            raise serializers.ValidationError("Country is required")
+        if not Country.objects.filter(id=value).exists():
+            raise serializers.ValidationError(f"Country with ID {value} does not exist")
+        return value
     
-    def validate_city(self,value):
-        try:
-            return validate_name(value, allow_spaces=True, field_name="city")
-        except ValueError as e:
-            raise serializers.ValidationError(str(e))
+    def validate_state(self, value):
+        if not value:
+            raise serializers.ValidationError("State is required")
+        if not State.objects.filter(id=value).exists():
+            raise serializers.ValidationError(f"State with ID {value} does not exist")
+        return value
     
-    def validate_state(self,value):
-        try:
-            return validate_name(value, allow_spaces=True, field_name="state")
-        except ValueError as e:
-            raise serializers.ValidationError(str(e))
+    def validate_city(self, value):
+        if not value:
+            raise serializers.ValidationError("City is required")
+        if not City.objects.filter(id=value).exists():
+            raise serializers.ValidationError(f"City with ID {value} does not exist")
+        return value
 
     def get_feature_image(self, obj):
         if obj.feature_image:
@@ -287,6 +328,15 @@ class EventSerializer(serializers.Serializer):
         if instance and hasattr(instance, 'tags'):
             res['tags'] = list(instance.tags.values('id', 'name','isActive'))
         
+        if instance and hasattr(instance, 'country') and instance.country:
+            res['country'] = {'id': instance.country.id, 'name': instance.country.name, 'slug': instance.country.slug}
+        
+        if instance and hasattr(instance, 'state') and instance.state:
+            res['state'] = {'id': instance.state.id, 'name': instance.state.name, 'slug': instance.state.slug}
+        
+        if instance and hasattr(instance, 'city') and instance.city:
+            res['city'] = {'id': instance.city.id, 'name': instance.city.name, 'slug': instance.city.slug}
+        
         request = self.context.get('request')
         
         if instance and hasattr(instance, 'feature_image') and instance.feature_image:
@@ -308,20 +358,11 @@ class EventSerializer(serializers.Serializer):
         if not value or not value.strip():
             raise serializers.ValidationError("Title cannot be empty.")
         
-        if value != value.strip():
-            raise ValueError(f"Title cannot have leading or trailing spaces.")
+        value = value.strip()
         
         if len(value) < 3:
             raise serializers.ValidationError("Title must be at least 3 characters long.")
         
-        if len(value) > 200:
-            raise serializers.ValidationError("Title cannot exceed 200 characters.")
-        
-        import re
-        if not re.match(r'^[a-zA-Z0-9\s\-\&\.\,\:\'\"]+$', value):
-            raise serializers.ValidationError("Title contains invalid characters. Only letters, numbers, spaces, and basic punctuation are allowed.")
-        
-
         return value.title()
     
     def validate_category(self, value):
@@ -376,7 +417,7 @@ class EventSerializer(serializers.Serializer):
 
     def validate_extraImages(self, value):
         if not value or len(value) == 0:
-            raise serializers.ValidationError("At least one extra image is required.")
+            return value
         
         allowed_extensions = ['png', 'svg', 'jpg', 'jpeg']
         max_size= 5* 1024 * 1024
@@ -417,9 +458,6 @@ class EventSerializer(serializers.Serializer):
     def validate_short_description(self, value):
         if not value or not value.strip():
             raise serializers.ValidationError("Short description cannot be empty.")
-                
-        if len(value) < 10:
-            raise serializers.ValidationError("Short description must be at least 10 characters long.")
         
         if len(value) > 255:
             raise serializers.ValidationError("Short description cannot exceed 255 characters.")
@@ -436,43 +474,67 @@ class EventSerializer(serializers.Serializer):
         return value.strip()
 
     def create(self, validated_data):
-        category_ids = validated_data.pop('category')
-        tag_ids = getattr(self, 'tags_data', [])
-        images_data = getattr(self, 'images_data', [])
-        
-        slug = validated_data.pop('slug', None)
-        if not slug:
-            title = validated_data.get('title')
-            slug = slugify(title)
+        try:
+            category_ids = validated_data.pop('category', [])
+            tag_ids = getattr(self, 'tags_data', [])
+            images_data = getattr(self, 'images_data', [])
             
-            base_slug = slug
-            counter = 1
-            while Event.objects.filter(slug=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-        
-        validated_data['slug'] = slug
-        
-        categories = Category.objects.filter(id__in=category_ids)
-        if len(categories) != len(category_ids):
-            raise serializers.ValidationError("One or more category IDs do not exist.")
-        
-        tags = EventTag.objects.filter(id__in=tag_ids) if tag_ids else []
-        
-        images = []
-        if isinstance(images_data, list):
-            for image in images_data:
-                if image:
-                    event_image = EventImages.objects.create(image=image)
-                    images.append(event_image)
-
-        event = Event.objects.create(**validated_data)
-        
-        event.category.set(categories)
-        event.tags.set(tags)
-        event.extraImages.set(images)
-        
-        return event
+            if not validated_data.get('feature_image'):
+                raise serializers.ValidationError({"feature_image": "Feature image is required when creating an event."})
+            
+            slug = validated_data.pop('slug', None)
+            if not slug or slug is None:
+                title = validated_data.get('title', '')
+                slug = slugify(title)
+                
+                base_slug = slug
+                counter = 1
+                while Event.objects.filter(slug=slug).exists():
+                    slug = f"{base_slug}-{counter}"
+                    counter += 1
+            
+            validated_data['slug'] = slug
+            
+            if not category_ids:
+                raise serializers.ValidationError("At least one category is required.")
+            
+            categories = Category.objects.filter(id__in=category_ids)
+            if len(categories) != len(category_ids):
+                raise serializers.ValidationError("One or more category IDs do not exist.")
+            
+            tags = EventTag.objects.filter(id__in=tag_ids) if tag_ids else []
+            
+            country_id = validated_data.pop('country')
+            state_id = validated_data.pop('state')
+            city_id = validated_data.pop('city')
+            
+            country = Country.objects.get(id=country_id)
+            state = State.objects.get(id=state_id)
+            city = City.objects.get(id=city_id)
+            
+            validated_data['country'] = country
+            validated_data['state'] = state
+            validated_data['city'] = city
+            
+            images = []
+            if isinstance(images_data, list):
+                for image in images_data:
+                    if image:
+                        event_image = EventImages.objects.create(image=image)
+                        images.append(event_image)
+            
+            event = Event.objects.create(**validated_data)
+            
+            event.category.set(categories)
+            event.tags.set(tags)
+            if images:
+                event.extraImages.set(images)
+            
+            return event
+        except serializers.ValidationError:
+            raise
+        except Exception as e:
+            raise serializers.ValidationError(f"Error creating event: {str(e)}")
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
@@ -513,10 +575,21 @@ class EventSerializer(serializers.Serializer):
                         images.append(event_image)
             instance.extraImages.set(images)
         
-        instance.country = validated_data.get('country', instance.country)
-        instance.state = validated_data.get('state', instance.state)
-        instance.city = validated_data.get('city', instance.city)
+        # Update location if provided
+        if 'country' in validated_data:
+            country_id = validated_data.get('country')
+            instance.country = Country.objects.get(id=country_id)
+        
+        if 'state' in validated_data:
+            state_id = validated_data.get('state')
+            instance.state = State.objects.get(id=state_id)
+        
+        if 'city' in validated_data:
+            city_id = validated_data.get('city')
+            instance.city = City.objects.get(id=city_id)
+        
         instance.venue = validated_data.get('venue', instance.venue)
+        instance.event_date = validated_data.get('event_date', instance.event_date)
         instance.start_time = validated_data.get('start_time', instance.start_time)
         instance.end_time = validated_data.get('end_time', instance.end_time)
         instance.is_active = validated_data.get('is_active', instance.is_active)

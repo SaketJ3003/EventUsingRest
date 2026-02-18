@@ -5,11 +5,13 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
-from .serializers import UserSerializer, CategorySerializer, EventTagSerializer, EventSerializer, LoginSerializer, RefreshTokenSerializer
-from .models import Category, EventTag, Event
+from .serializers import UserSerializer, CategorySerializer, EventTagSerializer, EventSerializer, LoginSerializer, RefreshTokenSerializer, CountrySerializer, StateSerializer, CitySerializer
+from .models import Category, EventTag, Event, Country, State, City
 
 
 class SignUpViewset(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+    
     def create(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -218,6 +220,9 @@ class EventViewSet(viewsets.ViewSet):
     def list(self, request):
         events = Event.objects.all()
         
+        if not (request.user and request.user.is_authenticated and request.user.is_staff):
+            events = events.filter(is_active=True)
+        
         search = request.query_params.get('search', None)
         if search:
             events = events.filter(
@@ -267,6 +272,11 @@ class EventViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, slug=None):
         event = self.get_object(slug)
+        
+        if not (request.user and request.user.is_authenticated and request.user.is_staff):
+            if not event.is_active:
+                raise NotFound({'detail': 'Event not found.'})
+        
         event.views_count +=1
         event.save()
 
@@ -312,6 +322,83 @@ class EventViewSet(viewsets.ViewSet):
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class UserStatusViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+    
+    def list(self, request):
+        if request.user and request.user.is_authenticated:
+            return Response({
+                'is_authenticated': True,
+                'is_admin': request.user.is_staff,
+                'username': request.user.username,
+                'email': request.user.email
+            })
+        else:
+            return Response({
+                'is_authenticated': False,
+                'is_admin': False
+            })
+
+
+class CountryViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+    
+    def list(self, request):
+        countries = Country.objects.all().order_by('name')
+        serializer = CountrySerializer(countries, many=True)
+        return Response(serializer.data)
+    
+    def retrieve(self, request, pk=None):
+        try:
+            country = Country.objects.get(pk=pk)
+            serializer = CountrySerializer(country)
+            return Response(serializer.data)
+        except Country.DoesNotExist:
+            return Response({'error': 'Country not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class StateViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+    
+    def list(self, request):
+        country_id = request.query_params.get('country')
+        if country_id:
+            states = State.objects.filter(country_id=country_id).order_by('name')
+        else:
+            states = State.objects.all().order_by('name')
+        serializer = StateSerializer(states, many=True)
+        return Response(serializer.data)
+    
+    def retrieve(self, request, pk=None):
+        try:
+            state = State.objects.get(pk=pk)
+            serializer = StateSerializer(state)
+            return Response(serializer.data)
+        except State.DoesNotExist:
+            return Response({'error': 'State not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class CityViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+    
+    def list(self, request):
+        state_id = request.query_params.get('state')
+        if state_id:
+            cities = City.objects.filter(state_id=state_id).order_by('name')
+        else:
+            cities = City.objects.all().order_by('name')
+        serializer = CitySerializer(cities, many=True)
+        return Response(serializer.data)
+    
+    def retrieve(self, request, pk=None):
+        try:
+            city = City.objects.get(pk=pk)
+            serializer = CitySerializer(city)
+            return Response(serializer.data)
+        except City.DoesNotExist:
+            return Response({'error': 'City not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
 class EventListView(View):
     def get(self, request):
         events = Event.objects.filter(is_active=True).order_by('event_date')
@@ -321,8 +408,47 @@ class EventListView(View):
 
 class EventDetailView(View):
     def get(self, request, slug):
-        event = get_object_or_404(Event, slug=slug, is_active=True)
-        event.views_count += 1
-        event.save()
+        if request.user and request.user.is_authenticated and request.user.is_staff:
+            event = get_object_or_404(Event, slug=slug)
+        else:
+            event = get_object_or_404(Event, slug=slug, is_active=True)
+        
+        # event.views_count += 1
+        # event.save()
         context = {'event': event}
         return render(request, 'event/event_detail.html', context)
+
+
+class SignUpTemplateView(View):
+    def get(self, request):
+        return render(request, 'event/signup.html')
+
+
+class LoginTemplateView(View):
+    def get(self, request):
+        return render(request, 'event/login.html')
+
+
+class CreateEventTemplateView(View):
+    def get(self, request):
+        return render(request, 'event/create_event.html')
+
+
+class AdminDashboardView(View):
+    def get(self, request):
+        return render(request, 'event/admin_dashboard.html')
+
+
+class AdminCategoriesView(View):
+    def get(self, request):
+        return render(request, 'event/admin_categories.html')
+
+
+class AdminTagsView(View):
+    def get(self, request):
+        return render(request, 'event/admin_tags.html')
+
+
+class EditEventTemplateView(View):
+    def get(self, request):
+        return render(request, 'event/edit_event.html')
