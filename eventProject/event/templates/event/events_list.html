@@ -1,73 +1,178 @@
-{% extends 'event/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-gray-900 font-sans">
+    <nav class="border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+            <h1 class="text-3xl font-mono tracking-tight"><a href="/event/template/events/" class="hover:text-gray-600 transition">EVENTS</a></h1>
+            <div class="space-x-4 flex items-center">
+                <a href="/event/admin/dashboard/" class="hidden text-sm text-blue-600 hover:text-blue-900 font-medium" id="adminDashboardBtn">Admin Dashboard</a>
+                <a href="/event/template/login/" class="text-sm text-gray-600 hover:text-gray-900">Login</a>
+                <a href="/event/template/signup/" class="text-sm text-gray-600 hover:text-gray-900">Sign Up</a>
+                <button onclick="logout()" class="hidden text-sm text-red-600 hover:text-red-900" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </nav>
 
-{% block title %}Events{% endblock %}
+    <div class="max-w-7xl mx-auto px-6 py-12">
+        <div class="mb-16">
+            <h2 class="text-4xl md:text-5xl font-dark tracking-tight mb-2">Upcoming Events</h2>
+            <p class="text-gray-500 text-lg">Discover and explore events near you</p>
+        </div>
 
-{% block content %}
-<div class="mb-16">
-    <h2 class="text-4xl md:text-5xl font-dark tracking-tight mb-2">Upcoming Events</h2>
-    <p class="text-gray-500 text-lg">Discover and explore events near you</p>
-</div>
+        <div id="eventsContainer"></div>
+        <div id="loadingContainer" class="text-center py-16">
+            <p class="text-gray-500 text-lg">Loading events...</p>
+        </div>
+    </div>
 
-{% if events %}
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {% for event in events %}
-            <a href="{% url 'event-detail' event.slug %}" class="group border border-gray-200 rounded-lg overflow-hidden hover:border-gray-400 transition-all duration-300 hover:shadow-lg flex flex-col no-underline">
-                <div class="w-full h-56 bg-gray-100 overflow-hidden flex items-center justify-center">
-                    {% if event.feature_image %}
-                        <img src="{{ event.feature_image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                    {% else %}
-                        <span class="text-gray-400 text-sm">No image</span>
-                    {% endif %}
-                </div>
+    <script>
+        async function checkAuth() {
+            const accessToken = localStorage.getItem('access_token');
+            const loginLink = document.querySelector('a[href="/event/template/login/"]');
+            const signupLink = document.querySelector('a[href="/event/template/signup/"]');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const createEventBtn = document.getElementById('createEventBtn');
+            const adminDashboardBtn = document.getElementById('adminDashboardBtn');
+            
+            if (accessToken) {
+                if (loginLink) loginLink.style.display = 'none';
+                if (signupLink) signupLink.style.display = 'none';
+                if (logoutBtn) logoutBtn.classList.remove('hidden');
                 
-                <div class="p-6 flex-1 flex flex-col">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3 line-clamp-2">{{ event.title }}</h3>
-                    <p class="text-gray-600 text-sm mb-6 line-clamp-2 leading-relaxed">{{ event.short_description }}</p>
-                    <div class="space-y-3 mb-6 border-t border-gray-100 pt-6">
-                        <div class="flex justify-between items-start">
-                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Date</span>
-                            <span class="text-sm text-gray-900">{{event.event_date}}</span>
-                        </div>
-                        <div class="flex justify-between items-start">
-                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Time</span>
-                            <span class="text-sm text-gray-900">{{ event.start_time }} - {{ event.end_time }}</span>
-                        </div>
-                        <div class="flex justify-between items-start">
-                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Location</span>
-                            <span class="text-sm text-gray-900 text-right">{{ event.city }}, {{ event.state }}</span>
-                        </div>
-                    </div>
+                // Checking if user is admin or not
+                try {
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    };
                     
-                    {% if event.category.all %}
-                        <div class="flex flex-wrap gap-2 mb-6">
-                            {% for category in event.category.all %}
-                                <span class="text-xs bg-gray-100 text-gray-700 px-3 py-1.5 rounded">{{ category.name }}</span>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+                    const response = await fetch('/event/user-status/', {
+                        headers: headers
+                    });
                     
-                    {% if event.tags.all %}
-                        <div class="flex flex-wrap gap-2 mb-6">
-                            {% for tag in event.tags.all %}
-                                <span class="capitalize text-xs text-gray-600 border border-gray-200 px-2.5 py-1 rounded">{{ tag.name }}</span>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    
-                    <div class="flex justify-between items-center pt-4 border-t border-gray-100 mt-auto">
-                        <span class="text-xs text-gray-500">{{ event.views_count }} views</span>
-                        <span class="text-sm font-semibold text-gray-900 group-hover:text-gray-600 transition flex items-center gap-2">
-                            View <span class="text-lg">→</span>
-                        </span>
-                    </div>
-                </div>
-            </a>
-        {% endfor %}
-    </div>
-{% else %}
-    <div class="text-center py-16">
-        <p class="text-gray-500 text-lg">No events found</p>
-    </div>
-{% endif %}
-{% endblock %}
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('User status:', data);
+                        if (data.is_admin) {
+                            if (createEventBtn) createEventBtn.classList.remove('hidden');
+                            if (adminDashboardBtn) adminDashboardBtn.classList.remove('hidden');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking user status:', error);
+                }
+            } else {
+                if (loginLink) loginLink.style.display = 'inline';
+                if (signupLink) signupLink.style.display = 'inline';
+                if (logoutBtn) logoutBtn.classList.add('hidden');
+                if (createEventBtn) createEventBtn.classList.add('hidden');
+                if (adminDashboardBtn) adminDashboardBtn.classList.add('hidden');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            location.reload();
+        }
+
+        function goToCreateEvent() {
+            window.location.href = '/event/template/create-event/';
+        }
+
+        async function loadEvents() {
+            try {
+                const accessToken = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                // Add authorization header if token exists
+                if (accessToken) {
+                    headers['Authorization'] = `Bearer ${accessToken}`;
+                }
+                
+                const response = await fetch('/event/events/', {
+                    headers: headers
+                });
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const events = await response.json();
+                console.log('Events data:', events);
+                
+                const container = document.getElementById('eventsContainer');
+                const loadingDiv = document.getElementById('loadingContainer');
+                
+                if (!events || events.length === 0) {
+                    container.innerHTML = '<div class="text-center py-16"><p class="text-gray-500 text-lg">No events found</p></div>';
+                    loadingDiv.style.display = 'none';
+                    return;
+                }
+                
+                const eventsHTML = events.map(event => {                    
+                    return `
+                        <a href="/event/template/events/${event.slug}/" class="group border border-gray-200 rounded-lg overflow-hidden hover:border-gray-400 transition-all duration-300 hover:shadow-lg flex flex-col no-underline ${!event.is_active ? 'opacity-75' : ''}">
+                            <div class="w-full h-56 bg-gray-100 overflow-hidden flex items-center justify-center relative">
+                                ${event.feature_image ? 
+                                    `<img src="${event.feature_image}" alt="${event.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='/static/placeholder.png'">` :
+                                    '<span class="text-gray-400 text-sm">No image</span>'}
+                            </div>
+                            
+                            <div class="p-6 flex-1 flex flex-col">
+                                <div class="flex items-start justify-between mb-3">
+                                    <h3 class="text-lg font-semibold text-gray-900 line-clamp-2 flex-1">${event.title || 'Untitled'}</h3>
+                                    ${!event.is_active ? '<span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded ml-2">Inactive</span>' : ''}
+                                </div>
+                                <p class="text-gray-600 text-sm mb-6 line-clamp-2 leading-relaxed">${event.short_description || 'No description'}</p>
+                                <div class="space-y-3 mb-6 border-t border-gray-100 pt-6">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Date</span>
+                                        <span class="text-sm text-gray-900">${event.event_date || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Time</span>
+                                        <span class="text-sm text-gray-900">${event.start_time || ''} - ${event.end_time || ''}</span>
+                                    </div>
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Location</span>
+                                        <span class="text-sm text-gray-900 text-right">${event.city?.name || ''}, ${event.state?.name || ''}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-between items-center pt-4 border-t border-gray-100 mt-auto">
+                                    <span class="text-xs text-gray-500">${event.views_count || 0} views</span>
+                                    <span class="text-sm font-semibold text-gray-900 group-hover:text-gray-600 transition flex items-center gap-2">
+                                        View <span class="text-lg">→</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                }).join('');
+                
+                container.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">' + eventsHTML + '</div>';
+                loadingDiv.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error loading events:', error);
+                document.getElementById('loadingContainer').innerHTML = `<p class="text-red-500 text-lg">Error loading events: ${error.message}</p>`;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadEvents();
+        });
+    </script>
+</body>
+</html>
