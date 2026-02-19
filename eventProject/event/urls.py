@@ -6,7 +6,7 @@ from .views import (
     SignUpTemplateView, LoginTemplateView, UserStatusViewSet, 
     CreateEventTemplateView, AdminDashboardView, AdminCategoriesView, 
     AdminTagsView, EditEventTemplateView, CountryViewSet, StateViewSet, 
-    CityViewSet
+    CityViewSet, AdminCountriesView, AdminStatesView, AdminCitiesView
 )
 
 router = DefaultRouter()
@@ -34,4 +34,7 @@ urlpatterns = [
     path('admin/categories/', AdminCategoriesView.as_view(), name='admin-categories'),
     path('admin/tags/', AdminTagsView.as_view(), name='admin-tags'),
     path('admin/edit-event/', EditEventTemplateView.as_view(), name='edit-event'),
+    path('admin/countries/', AdminCountriesView.as_view(), name='admin-countries'),
+    path('admin/states/', AdminStatesView.as_view(), name='admin-states'),
+    path('admin/cities/', AdminCitiesView.as_view(), name='admin-cities'),
 ]

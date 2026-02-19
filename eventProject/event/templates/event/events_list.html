@@ -29,9 +29,25 @@
         <div id="loadingContainer" class="text-center py-16">
             <p class="text-gray-500 text-lg">Loading events...</p>
         </div>
+        
+        <div id="paginationControls" class="mt-12 flex items-center justify-center gap-4 hidden">
+            <button id="prevBtn" onclick="loadPage('prev')" class="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                ← Previous
+            </button>
+            <span id="paginationInfo" class="text-sm text-gray-600"></span>
+            <button id="nextBtn" onclick="loadPage('next')" class="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                Next →
+            </button>
+        </div>
     </div>
 
     <script>
+        let paginationData = {
+            count: 0,
+            next: null,
+            previous: null
+        };
+
         async function checkAuth() {
             const accessToken = localStorage.getItem('access_token');
             const loginLink = document.querySelector('a[href="/event/template/login/"]');
@@ -86,19 +102,18 @@
             window.location.href = '/event/template/create-event/';
         }
 
-        async function loadEvents() {
+        async function loadEvents(url = '/event/events/') {
             try {
                 const accessToken = localStorage.getItem('access_token');
                 const headers = {
                     'Content-Type': 'application/json'
                 };
                 
-                // Add authorization header if token exists
                 if (accessToken) {
                     headers['Authorization'] = `Bearer ${accessToken}`;
                 }
                 
-                const response = await fetch('/event/events/', {
+                const response = await fetch(url, {
                     headers: headers
                 });
                 console.log('Response status:', response.status);
@@ -107,19 +122,29 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                const events = await response.json();
-                console.log('Events data:', events);
+                const data = await response.json();
+                console.log('Events data:', data);
                 
+                paginationData = {
+                    count: data.count,
+                    next: data.next,
+                    previous: data.previous
+                };
+                
+                const events = data.results;
+                console.log(events)
                 const container = document.getElementById('eventsContainer');
                 const loadingDiv = document.getElementById('loadingContainer');
                 
                 if (!events || events.length === 0) {
                     container.innerHTML = '<div class="text-center py-16"><p class="text-gray-500 text-lg">No events found</p></div>';
                     loadingDiv.style.display = 'none';
+                    document.getElementById('paginationControls').classList.add('hidden');
                     return;
                 }
-                
-                const eventsHTML = events.map(event => {                    
+                const activeEvents = events.filter(event => event.is_active)
+
+                const eventsHTML = activeEvents.map(event => {               
                     return `
                         <a href="/event/template/events/${event.slug}/" class="group border border-gray-200 rounded-lg overflow-hidden hover:border-gray-400 transition-all duration-300 hover:shadow-lg flex flex-col no-underline ${!event.is_active ? 'opacity-75' : ''}">
                             <div class="w-full h-56 bg-gray-100 overflow-hidden flex items-center justify-center relative">
@@ -137,11 +162,23 @@
                                 <div class="space-y-3 mb-6 border-t border-gray-100 pt-6">
                                     <div class="flex justify-between items-start">
                                         <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Date</span>
-                                        <span class="text-sm text-gray-900">${event.event_date || 'N/A'}</span>
+                                        <span class="text-sm text-gray-900">
+                                            ${event.event_date 
+                                                ? new Date(event.event_date).toLocaleDateString('en-GB', { 
+                                                    day: '2-digit', month: 'short', year: 'numeric' 
+                                                }) 
+                                                : 'N/A'}
+                                        </span>
                                     </div>
                                     <div class="flex justify-between items-start">
                                         <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Time</span>
-                                        <span class="text-sm text-gray-900">${event.start_time || ''} - ${event.end_time || ''}</span>
+                                        <span class="text-sm text-gray-900">
+                                            ${event.start_time && event.end_time ? `
+                                                ${new Date('1970-01-01T' + event.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} 
+                                                - 
+                                                ${new Date('1970-01-01T' + event.end_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                            ` : 'N/A'}
+                                        </span>
                                     </div>
                                     <div class="flex justify-between items-start">
                                         <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Location</span>
@@ -163,10 +200,46 @@
                 container.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">' + eventsHTML + '</div>';
                 loadingDiv.style.display = 'none';
                 
+                updatePaginationControls();
+                
             } catch (error) {
                 console.error('Error loading events:', error);
                 document.getElementById('loadingContainer').innerHTML = `<p class="text-red-500 text-lg">Error loading events: ${error.message}</p>`;
             }
+        }
+        
+        function loadPage(direction) {
+            if (direction === 'next' && paginationData.next) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                loadEvents(paginationData.next);
+            } else if (direction === 'prev' && paginationData.previous) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                loadEvents(paginationData.previous);
+            }
+        }
+        
+        function updatePaginationControls() {
+            const paginationControls = document.getElementById('paginationControls');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const paginationInfo = document.getElementById('paginationInfo');
+            
+            if (paginationData.count > 10) {
+                paginationControls.classList.remove('hidden');
+            } else {
+                paginationControls.classList.add('hidden');
+                return;
+            }
+            
+            prevBtn.disabled = !paginationData.previous;
+            nextBtn.disabled = !paginationData.next;
+            
+            const totalPages = Math.ceil(paginationData.count / 10);
+            const currentPage = paginationData.previous ? 
+                (new URL(paginationData.previous).searchParams.get('page') ? parseInt(new URL(paginationData.previous).searchParams.get('page')) + 1 : 2) : 
+                1;
+            
+            paginationInfo.textContent = `Page ${currentPage} of ${totalPages}`;
         }
         
         document.addEventListener('DOMContentLoaded', () => {

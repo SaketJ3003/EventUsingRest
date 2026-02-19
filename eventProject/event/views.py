@@ -5,6 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
+from rest_framework.pagination import PageNumberPagination
 from .serializers import UserSerializer, CategorySerializer, EventTagSerializer, EventSerializer, LoginSerializer, RefreshTokenSerializer, CountrySerializer, StateSerializer, CitySerializer
 from .models import Category, EventTag, Event, Country, State, City
 
@@ -63,8 +64,14 @@ class CategoryViewSet(viewsets.ViewSet):
 
     def list(self, request):
         categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True)
-        return Response(serializer.data)
+
+        categories = categories.order_by('name')
+
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(categories, request)
+        serializer = CategorySerializer(page, many=True)
+        print(paginator.get_paginated_response(serializer.data))
+        return paginator.get_paginated_response(serializer.data)
 
     def create(self, request):
         if not request.user.is_staff:
@@ -137,8 +144,13 @@ class EventTagViewSet(viewsets.ViewSet):
 
     def list(self, request):
         tags = EventTag.objects.all()
-        serializer = EventTagSerializer(tags, many=True)
-        return Response(serializer.data)
+        
+        tags = tags.order_by('name')
+
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(tags, request)
+        serializer = EventTagSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     def create(self, request):
         if not request.user.is_staff:
@@ -254,9 +266,12 @@ class EventViewSet(viewsets.ViewSet):
             status_filter = status_filter.lower() in ['true', '1', 'yes', 'active']
             events = events.filter(is_active=status_filter)
         
+        events = events.order_by('event_date')
         
-        serializer = EventSerializer(events, many=True, context={'request': request})
-        return Response(serializer.data)
+        paginator = PageNumberPagination()
+        paginated_events = paginator.paginate_queryset(events, request)
+        serializer = EventSerializer(paginated_events, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializer.data)
 
     def create(self, request):
         if not request.user.is_staff:
@@ -345,14 +360,73 @@ class CountryViewSet(viewsets.ViewSet):
     
     def list(self, request):
         countries = Country.objects.all().order_by('name')
-        serializer = CountrySerializer(countries, many=True)
-        return Response(serializer.data)
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(countries, request)
+        serializer = CountrySerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+    
+    def create(self, request):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can create countries.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer = CountrySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def retrieve(self, request, pk=None):
         try:
             country = Country.objects.get(pk=pk)
             serializer = CountrySerializer(country)
             return Response(serializer.data)
+        except Country.DoesNotExist:
+            return Response({'error': 'Country not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def update(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can update countries.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            country = Country.objects.get(pk=pk)
+            serializer = CountrySerializer(country, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Country.DoesNotExist:
+            return Response({'error': 'Country not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def partial_update(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can update countries.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            country = Country.objects.get(pk=pk)
+            serializer = CountrySerializer(country, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Country.DoesNotExist:
+            return Response({'error': 'Country not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def destroy(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can delete countries.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            country = Country.objects.get(pk=pk)
+            country.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except Country.DoesNotExist:
             return Response({'error': 'Country not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -366,14 +440,73 @@ class StateViewSet(viewsets.ViewSet):
             states = State.objects.filter(country_id=country_id).order_by('name')
         else:
             states = State.objects.all().order_by('name')
-        serializer = StateSerializer(states, many=True)
-        return Response(serializer.data)
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(states, request)
+        serializer = StateSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+    
+    def create(self, request):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can create states.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer = StateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def retrieve(self, request, pk=None):
         try:
             state = State.objects.get(pk=pk)
             serializer = StateSerializer(state)
             return Response(serializer.data)
+        except State.DoesNotExist:
+            return Response({'error': 'State not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def update(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can update states.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            state = State.objects.get(pk=pk)
+            serializer = StateSerializer(state, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except State.DoesNotExist:
+            return Response({'error': 'State not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def partial_update(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can update states.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            state = State.objects.get(pk=pk)
+            serializer = StateSerializer(state, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except State.DoesNotExist:
+            return Response({'error': 'State not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def destroy(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can delete states.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            state = State.objects.get(pk=pk)
+            state.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except State.DoesNotExist:
             return Response({'error': 'State not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -387,14 +520,73 @@ class CityViewSet(viewsets.ViewSet):
             cities = City.objects.filter(state_id=state_id).order_by('name')
         else:
             cities = City.objects.all().order_by('name')
-        serializer = CitySerializer(cities, many=True)
-        return Response(serializer.data)
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(cities, request)
+        serializer = CitySerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+    
+    def create(self, request):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can create cities.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer = CitySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def retrieve(self, request, pk=None):
         try:
             city = City.objects.get(pk=pk)
             serializer = CitySerializer(city)
             return Response(serializer.data)
+        except City.DoesNotExist:
+            return Response({'error': 'City not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def update(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can update cities.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            city = City.objects.get(pk=pk)
+            serializer = CitySerializer(city, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except City.DoesNotExist:
+            return Response({'error': 'City not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def partial_update(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can update cities.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            city = City.objects.get(pk=pk)
+            serializer = CitySerializer(city, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except City.DoesNotExist:
+            return Response({'error': 'City not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def destroy(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'detail': 'Only admin users can delete cities.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            city = City.objects.get(pk=pk)
+            city.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except City.DoesNotExist:
             return Response({'error': 'City not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -436,7 +628,12 @@ class CreateEventTemplateView(View):
 
 class AdminDashboardView(View):
     def get(self, request):
-        return render(request, 'event/admin_dashboard.html')
+        context = {
+            'events_count': Event.objects.count(),
+            'categories_count': Category.objects.count(),
+            'tags_count': EventTag.objects.count(),
+        }
+        return render(request, 'event/admin_dashboard.html', context)
 
 
 class AdminCategoriesView(View):
@@ -452,3 +649,17 @@ class AdminTagsView(View):
 class EditEventTemplateView(View):
     def get(self, request):
         return render(request, 'event/edit_event.html')
+
+class AdminCountriesView(View):
+    def get(self, request):
+        return render(request, 'event/admin_countries.html')
+
+
+class AdminStatesView(View):
+    def get(self, request):
+        return render(request, 'event/admin_states.html')
+
+
+class AdminCitiesView(View):
+    def get(self, request):
+        return render(request, 'event/admin_cities.html')
