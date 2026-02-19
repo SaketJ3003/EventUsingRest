@@ -162,7 +162,7 @@ class CategorySerializer(serializers.Serializer):
 
     def validate_name(self,value):
         try:
-            return validate_name(value, allow_spaces=False, field_name="name")
+            return validate_name(value, allow_spaces=True, field_name="name")
         except ValueError as e:
             raise serializers.ValidationError(str(e))
 
@@ -186,7 +186,7 @@ class EventTagSerializer(serializers.Serializer):
 
     def validate_name(self,value):
         try:
-            return validate_name(value, allow_spaces=False, field_name="name")
+            return validate_name(value, allow_spaces=True, field_name="name")
         except ValueError as e:
             raise serializers.ValidationError(str(e))
 
@@ -207,6 +207,24 @@ class CountrySerializer(serializers.Serializer):
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
 
+    def validate_name(self, value):
+        from .models import Country
+        if not self.instance:
+            if Country.objects.filter(name=value).exists():
+                raise serializers.ValidationError("A country with this name already exists.")
+        elif self.instance:
+            if Country.objects.filter(name=value).exclude(pk=self.instance.pk).exists():
+                raise serializers.ValidationError("A country with this name already exists.")
+        return value
+
+    def create(self, validated_data):
+        return Country.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.save()
+        return instance
+
 
 class StateSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
@@ -217,8 +235,35 @@ class StateSerializer(serializers.Serializer):
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
 
+    def validate_country(self, value):
+        from .models import Country
+        if not Country.objects.filter(pk=value).exists():
+            raise serializers.ValidationError(f"Country with id {value} does not exist.")
+        return value
+
+    def validate(self, data):
+        from .models import State
+        if not self.instance: 
+            if State.objects.filter(name=data['name'], country_id=data['country']).exists():
+                raise serializers.ValidationError({"name": "A state with this name already exists in this country."})
+        elif self.instance:
+            if State.objects.filter(name=data.get('name', self.instance.name), 
+                                   country_id=data.get('country', self.instance.country_id)).exclude(pk=self.instance.pk).exists():
+                raise serializers.ValidationError({"name": "A state with this name already exists in this country."})
+        return data
+
     def get_country_detail(self, obj):
         return {'id': obj.country.id, 'name': obj.country.name}
+
+    def create(self, validated_data):
+        country_id = validated_data.pop('country')
+        return State.objects.create(country_id=country_id, **validated_data)
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.country_id = validated_data.get('country', instance.country_id)
+        instance.save()
+        return instance
 
 
 class CitySerializer(serializers.Serializer):
@@ -230,8 +275,35 @@ class CitySerializer(serializers.Serializer):
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
 
+    def validate_state(self, value):
+        from .models import State
+        if not State.objects.filter(pk=value).exists():
+            raise serializers.ValidationError(f"State with id {value} does not exist.")
+        return value
+
+    def validate(self, data):
+        from .models import City
+        if not self.instance: 
+            if City.objects.filter(name=data['name'], state_id=data['state']).exists():
+                raise serializers.ValidationError({"name": "A city with this name already exists in this state."})
+        elif self.instance:
+            if City.objects.filter(name=data.get('name', self.instance.name), 
+                                  state_id=data.get('state', self.instance.state_id)).exclude(pk=self.instance.pk).exists():
+                raise serializers.ValidationError({"name": "A city with this name already exists in this state."})
+        return data
+
     def get_state_detail(self, obj):
         return {'id': obj.state.id, 'name': obj.state.name, 'country': {'id': obj.state.country.id, 'name': obj.state.country.name}}
+
+    def create(self, validated_data):
+        state_id = validated_data.pop('state')
+        return City.objects.create(state_id=state_id, **validated_data)
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.state_id = validated_data.get('state', instance.state_id)
+        instance.save()
+        return instance
 
 
 class EventSerializer(serializers.Serializer):
@@ -597,5 +669,3 @@ class EventSerializer(serializers.Serializer):
         instance.long_description = validated_data.get('long_description', instance.long_description)
         instance.save()
         return instance
-    
-    

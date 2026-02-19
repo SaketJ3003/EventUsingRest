@@ -36,7 +36,7 @@ def validate_name(value, allow_spaces=False, field_name="Name"):
     if not re.match(regex, value):
         raise ValueError(error_msg)
 
-    return value
+    return value.title()
 
 
 def validate_email(value):

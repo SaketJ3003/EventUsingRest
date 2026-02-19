@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Category Management</title>
+    <title>Country Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
@@ -20,7 +20,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-700 text-white font-medium">
+                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Categories
                         </a>
                     </li>
@@ -30,7 +30,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/countries/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/countries/" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-700 text-white font-medium">
                             Countries
                         </a>
                     </li>
@@ -56,7 +56,7 @@
         <main class="flex-1 overflow-y-auto">
             <header class="bg-white shadow-sm">
                 <div class="px-8 py-6">
-                    <h2 class="text-2xl font-bold text-gray-900">Category Management</h2>
+                    <h2 class="text-2xl font-bold text-gray-900">Country Management</h2>
                 </div>
             </header>
 
@@ -65,11 +65,11 @@
                 <div id="errorMessage" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800"></div>
 
                 <div class="mb-6 flex justify-between items-center">
-                    <input type="text" id="searchInput" placeholder="Search categories..." 
+                    <input type="text" id="searchInput" placeholder="Search countries..." 
                         class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 w-64"
-                        oninput="filterCategories()">
+                        oninput="filterCountries()">
                     <button onclick="openAddModal()" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
-                        + Add Category
+                        + Add Country
                     </button>
                 </div>
 
@@ -79,14 +79,14 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="categoriesTableBody" class="bg-white divide-y divide-gray-200">
+                        <tbody id="countriesTableBody" class="bg-white divide-y divide-gray-200">
                             <tr>
-                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">Loading categories...</td>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">Loading countries...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -114,35 +114,31 @@
         </main>
     </div>
 
-    <div id="categoryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div id="countryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
             <div class="p-6 border-b">
-                <h3 class="text-xl font-bold" id="modalTitle">Add Category</h3>
+                <h3 class="text-xl font-bold" id="modalTitle">Add Country</h3>
             </div>
             <div class="p-6">
-                <form id="categoryForm" class="space-y-4">
-                    <input type="hidden" id="categoryId">
+                <form id="countryForm" class="space-y-4">
+                    <input type="hidden" id="countryId">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
-                        <input type="text" id="categoryName" maxlength="20" 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Country Name</label>
+                        <input type="text" id="countryName" maxlength="100" 
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                            placeholder="Enter category name">
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="categoryActive" checked class="rounded border-gray-300">
-                        <label for="categoryActive" class="ml-2 text-sm text-gray-700">Active</label>
+                            placeholder="Enter country name">
                     </div>
                 </form>
             </div>
             <div class="p-6 border-t flex gap-4 justify-end">
                 <button onclick="closeModal()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                <button onclick="saveCategory()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+                <button onclick="saveCountry()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
             </div>
         </div>
     </div>
 
     <script>
-        let allCategories = [];
+        let allCountries = [];
         let isEditMode = false;
         let currentPage = 1;
         let totalPages = 1;
@@ -190,13 +186,13 @@
             }
         }
 
-        async function loadCategories(url = '/event/categories/') {
+        async function loadCountries(url = '/event/countries/') {
             try {
                 const response = await fetch(url);
                 if (response.ok) {
                     const data = await response.json();
-                    allCategories = data.results || data;
-                    totalCount = data.count || allCategories.length;
+                    allCountries = data.results || data;
+                    totalCount = data.count || allCountries.length;
                     nextUrl = data.next;
                     prevUrl = data.previous;
                     
@@ -207,116 +203,88 @@
                     }
                     
                     totalPages = Math.ceil(totalCount / 10);
-                    renderCategories(allCategories);
+                    renderCountries(allCountries);
                     updatePaginationControls();
                 } else {
-                    showError('Failed to load categories');
+                    showError('Failed to load countries');
                 }
             } catch (error) {
-                console.error('Error loading categories:', error);
-                showError('Error loading categories');
+                console.error('Error loading countries:', error);
+                showError('Error loading countries');
             }
         }
 
-        function loadPage(page) {
-            if (page < 1 || page > totalPages) return;
-            loadCategories(`/event/categories/?page=${page}`);
-        }
-
-        function updatePaginationControls() {
-            document.getElementById('prevBtn').disabled = !prevUrl;
-            document.getElementById('nextBtn').disabled = !nextUrl;
+        function renderCountries(countries) {
+            const tbody = document.getElementById('countriesTableBody');
             
-            const start = ((currentPage - 1) * 10) + 1;
-            const end = Math.min(currentPage * 10, totalCount);
-            document.getElementById('pageInfo').textContent = `${start}-${end} of ${totalCount}`;
-            document.getElementById('pageNumbers').textContent = `Page ${currentPage} of ${totalPages}`;
-        }
-
-        function renderCategories(categories) {
-            const tbody = document.getElementById('categoriesTableBody');
-            
-            if (categories.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No categories found</td></tr>';
+            if (countries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No countries found</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = categories.map(cat => `
+            tbody.innerHTML = countries.map(country => `
                 <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm text-gray-900">${cat.id}</td>
-                    <td class="px-6 py-4">
-                        <div class="text-sm font-medium text-gray-900">${cat.name}</div>
-                        <div class="text-sm text-gray-500">${cat.slug}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cat.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                            ${cat.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-900">${new Date(cat.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${country.id}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">${country.name}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${country.slug}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${new Date(country.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</td>
                     <td class="px-6 py-4 text-sm font-medium space-x-2">
-                        <button onclick="openEditModal(${cat.id})" class="text-indigo-600 hover:text-indigo-900">Edit</button>
-                        <button onclick="deleteCategory(${cat.id})" class="text-red-600 hover:text-red-900">Delete</button>
+                        <button onclick="openEditModal(${country.id})" class="text-indigo-600 hover:text-indigo-900">Edit</button>
+                        <button onclick="deleteCountry(${country.id})" class="text-red-600 hover:text-red-900">Delete</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function filterCategories() {
+        function filterCountries() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allCategories.filter(cat => 
-                cat.name.toLowerCase().includes(searchTerm)
+            const filtered = allCountries.filter(country => 
+                country.name.toLowerCase().includes(searchTerm)
             );
-            renderCategories(filtered);
+            renderCountries(filtered);
         }
 
         function openAddModal() {
             isEditMode = false;
-            document.getElementById('modalTitle').textContent = 'Add Category';
-            document.getElementById('categoryId').value = '';
-            document.getElementById('categoryName').value = '';
-            document.getElementById('categoryActive').checked = true;
-            document.getElementById('categoryModal').classList.remove('hidden');
+            document.getElementById('modalTitle').textContent = 'Add Country';
+            document.getElementById('countryId').value = '';
+            document.getElementById('countryName').value = '';
+            document.getElementById('countryModal').classList.remove('hidden');
         }
 
-        function openEditModal(categoryId) {
+        function openEditModal(countryId) {
             isEditMode = true;
-            const category = allCategories.find(c => c.id === categoryId);
-            if (!category) return;
+            const country = allCountries.find(c => c.id === countryId);
+            if (!country) return;
 
-            document.getElementById('modalTitle').textContent = 'Edit Category';
-            document.getElementById('categoryId').value = category.id;
-            document.getElementById('categoryName').value = category.name;
-            document.getElementById('categoryActive').checked = category.isActive;
-            document.getElementById('categoryModal').classList.remove('hidden');
+            document.getElementById('modalTitle').textContent = 'Edit Country';
+            document.getElementById('countryId').value = country.id;
+            document.getElementById('countryName').value = country.name;
+            document.getElementById('countryModal').classList.remove('hidden');
         }
 
         function closeModal() {
-            document.getElementById('categoryModal').classList.add('hidden');
+            document.getElementById('countryModal').classList.add('hidden');
         }
 
-        async function saveCategory() {
-            const name = document.getElementById('categoryName').value.trim();
-            const isActive = document.getElementById('categoryActive').checked;
+        async function saveCountry() {
+            const name = document.getElementById('countryName').value.trim();
 
             if (!name) {
-                showError('Category name is required');
+                showError('Country name is required');
                 return;
             }
 
-            const categoryData = {
-                name: name,
-                isActive: isActive
-            };
+            const countryData = { name: name };
 
             try {
                 const accessToken = localStorage.getItem('access_token');
-                let url = '/event/categories/';
+                let url = '/event/countries/';
                 let method = 'POST';
 
                 if (isEditMode) {
-                    const categoryId = document.getElementById('categoryId').value;
-                    url = `/event/categories/${categoryId}/`;
+                    const countryId = document.getElementById('countryId').value;
+                    url = `/event/countries/${countryId}/`;
                     method = 'PUT';
                 }
 
@@ -326,30 +294,30 @@
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(categoryData)
+                    body: JSON.stringify(countryData)
                 });
 
                 if (response.ok) {
-                    showSuccess(`Category ${isEditMode ? 'updated' : 'created'} successfully`);
+                    showSuccess(`Country ${isEditMode ? 'updated' : 'created'} successfully`);
                     closeModal();
-                    loadCategories();
+                    loadCountries();
                 } else {
                     const errorData = await response.json();
                     const errors = Object.entries(errorData).map(([key, value]) => `${key}: ${value}`);
                     showError(errors);
                 }
             } catch (error) {
-                console.error('Error saving category:', error);
-                showError('Error saving category');
+                console.error('Error saving country:', error);
+                showError('Error saving country');
             }
         }
 
-        async function deleteCategory(categoryId) {
-            if (!confirm('Are you sure you want to delete this category?')) return;
+        async function deleteCountry(countryId) {
+            if (!confirm('Are you sure you want to delete this country? This will also delete all related states and cities.')) return;
 
             try {
                 const accessToken = localStorage.getItem('access_token');
-                const response = await fetch(`/event/categories/${categoryId}/`, {
+                const response = await fetch(`/event/countries/${countryId}/`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`
@@ -357,14 +325,14 @@
                 });
 
                 if (response.ok) {
-                    showSuccess('Category deleted successfully');
-                    loadCategories();
+                    showSuccess('Country deleted successfully');
+                    loadCountries();
                 } else {
-                    showError('Failed to delete category');
+                    showError('Failed to delete country');
                 }
             } catch (error) {
-                console.error('Error deleting category:', error);
-                showError('Error deleting category');
+                console.error('Error deleting country:', error);
+                showError('Error deleting country');
             }
         }
 
@@ -387,10 +355,25 @@
             document.getElementById('successMessage').classList.add('hidden');
         }
 
+        function loadPage(page) {
+            if (page < 1 || page > totalPages) return;
+            loadCountries(`/event/countries/?page=${page}`);
+        }
+
+        function updatePaginationControls() {
+            document.getElementById('prevBtn').disabled = !prevUrl;
+            document.getElementById('nextBtn').disabled = !nextUrl;
+            
+            const start = ((currentPage - 1) * 10) + 1;
+            const end = Math.min(currentPage * 10, totalCount);
+            document.getElementById('pageInfo').textContent = `${start}-${end} of ${totalCount}`;
+            document.getElementById('pageNumbers').textContent = `Page ${currentPage} of ${totalPages}`;
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const isAdmin = await checkAdmin();
             if (isAdmin) {
-                loadCategories();
+                loadCountries();
             }
         });
     </script>
