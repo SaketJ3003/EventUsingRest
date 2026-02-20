@@ -15,39 +15,39 @@
             <nav class="flex-1 p-4">
                 <ul class="space-y-2">
                     <li>
-                        <a href="/event/admin/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Categories
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/tags/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/tags/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Tags
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/countries/" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-700 text-white font-medium">
+                        <a href="/event/admin/countries/" class="flex items-center gap-3 px-4 py-3 rounded-full bg-gray-700 text-white font-medium">
                             Countries
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/states/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/states/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             States
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/cities/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/cities/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Cities
                         </a>
                     </li>
                 </ul>
             </nav>
             <div class="p-4 border-t border-gray-700">
-                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-600 text-gray-300 hover:text-white transition">
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-full hover:bg-red-600 text-gray-300 hover:text-white transition">
                     Logout
                 </button>
             </div>
@@ -66,9 +66,9 @@
 
                 <div class="mb-6 flex justify-between items-center">
                     <input type="text" id="searchInput" placeholder="Search countries..." 
-                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 w-64"
+                        class="px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 w-64"
                         oninput="filterCountries()">
-                    <button onclick="openAddModal()" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
+                    <button onclick="openAddModal()" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition">
                         + Add Country
                     </button>
                 </div>
@@ -77,8 +77,8 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.No</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Countries</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -98,13 +98,13 @@
                     </div>
                     <div class="flex gap-2">
                         <button id="prevBtn" onclick="loadPage(currentPage - 1)" 
-                            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled>
                             Previous
                         </button>
                         <span id="pageNumbers" class="flex items-center px-4"></span>
                         <button id="nextBtn" onclick="loadPage(currentPage + 1)" 
-                            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled>
                             Next
                         </button>
@@ -125,20 +125,22 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Country Name</label>
                         <input type="text" id="countryName" maxlength="100" 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500" 
                             placeholder="Enter country name">
+                        <span id="countryName-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                     </div>
                 </form>
             </div>
             <div class="p-6 border-t flex gap-4 justify-end">
-                <button onclick="closeModal()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                <button onclick="saveCountry()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+                <button onclick="closeModal()" class="px-6 py-2 border border-gray-300 rounded-full hover:bg-gray-50">Cancel</button>
+                <button onclick="saveCountry()" class="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">Save</button>
             </div>
         </div>
     </div>
 
     <script>
         let allCountries = [];
+        let allCountrySlugs = [];   
         let isEditMode = false;
         let currentPage = 1;
         let totalPages = 1;
@@ -205,6 +207,7 @@
                     totalPages = Math.ceil(totalCount / 10);
                     renderCountries(allCountries);
                     updatePaginationControls();
+                    loadAllCountrySlugs();
                 } else {
                     showError('Failed to load countries');
                 }
@@ -222,9 +225,11 @@
                 return;
             }
 
-            tbody.innerHTML = countries.map(country => `
+            const startIndex = (currentPage - 1) * 10;
+
+            tbody.innerHTML = countries.map((country, index) => `
                 <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm text-gray-900">${country.id}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${startIndex + index + 1}</td>
                     <td class="px-6 py-4 text-sm font-medium text-gray-900">${country.name}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">${country.slug}</td>
                     <td class="px-6 py-4 text-sm text-gray-900">${new Date(country.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</td>
@@ -249,6 +254,7 @@
             document.getElementById('modalTitle').textContent = 'Add Country';
             document.getElementById('countryId').value = '';
             document.getElementById('countryName').value = '';
+            clearCountryNameError();
             document.getElementById('countryModal').classList.remove('hidden');
         }
 
@@ -260,20 +266,21 @@
             document.getElementById('modalTitle').textContent = 'Edit Country';
             document.getElementById('countryId').value = country.id;
             document.getElementById('countryName').value = country.name;
+            clearCountryNameError();
             document.getElementById('countryModal').classList.remove('hidden');
         }
 
         function closeModal() {
             document.getElementById('countryModal').classList.add('hidden');
+            clearCountryNameError();
         }
 
         async function saveCountry() {
-            const name = document.getElementById('countryName').value.trim();
+            const name = document.getElementById('countryName').value;
 
-            if (!name) {
-                showError('Country name is required');
-                return;
-            }
+            const error = validateCountryName(name);
+            showCountryNameError(error);
+            if (error) return;
 
             const countryData = { name: name };
 
@@ -303,8 +310,12 @@
                     loadCountries();
                 } else {
                     const errorData = await response.json();
-                    const errors = Object.entries(errorData).map(([key, value]) => `${key}: ${value}`);
-                    showError(errors);
+                    if (errorData.name) {
+                        showCountryNameError(Array.isArray(errorData.name) ? errorData.name[0] : errorData.name);
+                    } else {
+                        const errors = Object.entries(errorData).map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`);
+                        showError(errors);
+                    }
                 }
             } catch (error) {
                 console.error('Error saving country:', error);
@@ -375,7 +386,87 @@
             if (isAdmin) {
                 loadCountries();
             }
+
+            function debounce(fn, delay) {
+                let timer;
+                return function (...args) {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn.apply(this, args), delay);
+                };
+            }
+
+            const nameInput = document.getElementById('countryName');
+            nameInput.addEventListener('input', debounce(function () {
+                showCountryNameError(validateCountryName(this.value));
+            }, 300));
+            nameInput.addEventListener('blur', function () {
+                showCountryNameError(validateCountryName(this.value));
+            });
         });
+
+        function generateSlug(value) {
+            return value.trim().toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+        }
+
+        async function loadAllCountrySlugs() {
+            try {
+                let url = '/event/countries/';
+                allCountrySlugs = [];
+                while (url) {
+                    const response = await fetch(url);
+                    if (!response.ok) break;
+                    const data = await response.json();
+                    (data.results || data).forEach(c => allCountrySlugs.push({ id: c.id, slug: c.slug }));
+                    url = data.next;
+                }
+            } catch (e) {
+                console.error('Error loading country slugs:', e);
+            }
+        }
+
+        function validateCountryName(value) {
+            if (!value || !value.trim())
+                return 'Country name is required.';
+            if (value !== value.trim())
+                return 'Country name cannot have leading or trailing spaces.';
+            if (/ {2,}/.test(value))
+                return 'Country name cannot contain multiple consecutive spaces.';
+            if (value.trim().length < 3)
+                return 'Country name must be at least 3 characters.';
+            if (value.trim().length > 100)
+                return 'Country name cannot exceed 100 characters.';
+            if (!/^[a-zA-Z]+([ ][a-zA-Z]+)*$/.test(value.trim()))
+                return 'Country name can only contain letters and single spaces between words.';
+            const candidateSlug = generateSlug(value);
+            const editingId = isEditMode ? parseInt(document.getElementById('countryId').value) : null;
+            const duplicate = allCountrySlugs.find(s => s.slug === candidateSlug && s.id !== editingId);
+            if (duplicate)
+                return 'A country with this name already exists.';
+            return '';
+        }
+
+        function showCountryNameError(errorMessage) {
+            const input   = document.getElementById('countryName');
+            const errSpan = document.getElementById('countryName-error');
+            const hasValue = !!input.value;
+            input.classList.toggle('border-red-500',   !!errorMessage);
+            input.classList.toggle('border-green-500', !errorMessage && hasValue);
+            input.classList.toggle('border-gray-300',  !errorMessage && !hasValue);
+            errSpan.textContent = errorMessage;
+            errSpan.classList.toggle('hidden', !errorMessage);
+        }
+
+        function clearCountryNameError() {
+            const input   = document.getElementById('countryName');
+            const errSpan = document.getElementById('countryName-error');
+            input.classList.remove('border-red-500', 'border-green-500');
+            input.classList.add('border-gray-300');
+            errSpan.textContent = '';
+            errSpan.classList.add('hidden');
+        }
     </script>
 </body>
 </html>

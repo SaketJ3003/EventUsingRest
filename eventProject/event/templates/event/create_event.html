@@ -40,6 +40,7 @@
                                     class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     oninput="generateSlug()">
                             </div>
+                            <span id="title-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                         </div>
 
                         <div>
@@ -56,6 +57,7 @@
                                 maxlength="255"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 rows="2"></textarea>
+                            <span id="shortDescription-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                         </div>
 
                         <div>
@@ -64,6 +66,7 @@
                                 placeholder="Detailed event description"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 rows="4"></textarea>
+                            <span id="longDescription-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                         </div>
                     </div>
                 </div>
@@ -76,18 +79,21 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Event Date *</label>
                             <input type="date" id="eventDate" name="event_date"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <span id="eventDate-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Start Time *</label>
                             <input type="time" id="startTime" name="start_time"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <span id="startTime-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">End Time *</label>
                             <input type="time" id="endTime" name="end_time"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <span id="endTime-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                         </div>
                     </div>
                 </div>
@@ -101,31 +107,35 @@
                             <input type="text" id="venue" name="venue" 
                                 placeholder="Event venue name"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <span id="venue-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Country *</label>
-                                <select id="country" name="country" onchange="loadStates()" required
+                                <select id="country" name="country" onchange="loadStates()" 
                                     class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                     <option value="">Select Country</option>
                                 </select>
+                                <span id="country-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">State *</label>
-                                <select id="state" name="state" onchange="loadCities()" required
+                                <select id="state" name="state" onchange="loadCities()"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
                                     <option value="">Select State</option>
                                 </select>
+                                <span id="state-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">City *</label>
-                                <select id="city" name="city" required
+                                <select id="city" name="city" 
                                     class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
                                     <option value="">Select City</option>
                                 </select>
+                                <span id="city-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                             </div>
                         </div>
                     </div>
@@ -139,7 +149,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Categories *</label>
                             <div class="relative">
                                 <button type="button" id="categoriesDropdownBtn" onclick="toggleDropdown('categories')" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-left flex justify-between items-center focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-full bg-white text-left flex justify-between items-center focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                     <span id="categoriesPlaceholder" class="text-gray-500">Select categories...</span>
                                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -152,13 +162,14 @@
                                 </div>
                             </div>
                             <div id="selectedCategoriesBadges" class="mt-2 flex flex-wrap gap-2"></div>
+                            <span id="categories-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
                             <div class="relative">
                                 <button type="button" id="tagsDropdownBtn" onclick="toggleDropdown('tags')" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-left flex justify-between items-center focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-full bg-white text-left flex justify-between items-center focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                     <span id="tagsPlaceholder" class="text-gray-500">Select tags...</span>
                                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -184,6 +195,7 @@
                             <input type="file" id="featureImage" name="feature_image" accept="image/*"
                                 class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 onchange="previewFeatureImage()">
+                            <span id="featureImage-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                             <div id="featureImagePreview"></div>
                         </div>
 
@@ -192,6 +204,7 @@
                             <input type="file" id="extraImages" name="extra_images" accept="image/*" multiple
                                 class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 onchange="previewExtraImages()">
+                            <span id="extraImages-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                             <div id="extraImagesPreview" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4"></div>
                         </div>
                     </div>
@@ -211,6 +224,7 @@
 
     <script>
         let selectedCategories = [];
+        let allEventSlugs = [];
         let selectedTags = [];
         let allCategories = [];
         let allTags = [];
@@ -323,6 +337,7 @@
                 selectedCategories.push(categoryId);
             }
             updateCategoriesBadges();
+            showCategoriesError();
         }
 
         function toggleTag(tagId, tagName) {
@@ -395,6 +410,7 @@
         function removeCategory(categoryId) {
             selectedCategories = selectedCategories.filter(id => id !== categoryId);
             renderCategories();
+            showCategoriesError();
         }
 
         function removeTag(tagId) {
@@ -421,6 +437,29 @@
                 .replace(/\s+/g, '-')
                 .replace(/-+/g, '-');
             document.getElementById('slug').value = slug;
+        }
+
+        function slugifyTitle(value) {
+            return value.trim().toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+        }
+
+        async function loadAllEventSlugs() {
+            try {
+                let url = '/event/events/';
+                allEventSlugs = [];
+                while (url) {
+                    const response = await fetch(url);
+                    if (!response.ok) break;
+                    const data = await response.json();
+                    (data.results || data).forEach(e => allEventSlugs.push(e.slug));
+                    url = data.next;
+                }
+            } catch (e) {
+                console.error('Error loading event slugs:', e);
+            }
         }
 
         function previewFeatureImage() {
@@ -490,7 +529,11 @@
             stateSelect.innerHTML = '<option value="">Select State</option>';
             citySelect.innerHTML = '<option value="">Select City</option>';
             citySelect.disabled = true;
-            
+
+            showFieldError('country', countryId ? '' : 'Country is required.');
+            showFieldError('state', '');
+            showFieldError('city', '');
+
             if (!countryId) {
                 stateSelect.disabled = true;
                 return;
@@ -524,7 +567,10 @@
             const citySelect = document.getElementById('city');
             
             citySelect.innerHTML = '<option value="">Select City</option>';
-            
+
+            showFieldError('state', stateId ? '' : 'State is required.');
+            showFieldError('city', '');
+
             if (!stateId) {
                 citySelect.disabled = true;
                 return;
@@ -555,6 +601,12 @@
 
         async function submitEvent(event) {
             event.preventDefault();
+
+            if (!validateForm()) {
+                const firstError = document.querySelector('[id$="-error"]:not(.hidden)');
+                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
 
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
@@ -694,6 +746,225 @@
             checkAdmin();
             loadCategoriesAndTags();
             loadCountries();
+        });
+
+        // Real-time validation 
+
+        const eventFieldRules = {
+            title:            { name: 'Title',             required: true,  minLength: 3,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Title can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
+            shortDescription: { name: 'Short description', required: true,  maxLength: 255, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Short Description can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
+            longDescription:  { name: 'Long description',  required: true,  minLength: 20, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Long Description can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
+            venue:            { name: 'Venue',             required: true,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Venue can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
+            eventDate:        { name: 'Event date',        required: true },
+            startTime:        { name: 'Start time',        required: true },
+            endTime:          { name: 'End time',          required: true },
+            country:          { name: 'Country',           required: true },
+            state:            { name: 'State',             required: true },
+            city:             { name: 'City',              required: true },
+        };
+
+        function debounce(fn, delay) {
+            let timer;
+            return function (...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        function showFieldError(fieldId, errorMessage) {
+            const input   = document.getElementById(fieldId);
+            const errSpan = document.getElementById(fieldId + '-error');
+            if (!errSpan) return;
+
+            if (input) {
+                const hasValue = input.files ? input.files.length > 0 : !!input.value;
+                input.classList.toggle('border-red-500',   !!errorMessage);
+                input.classList.toggle('border-green-500', !errorMessage && hasValue);
+                input.classList.toggle('border-gray-300',  !errorMessage && !hasValue);
+            }
+
+            errSpan.textContent = errorMessage;
+            errSpan.classList.toggle('hidden', !errorMessage);
+        }
+
+        function validateEventField(fieldId, value) {
+            const rules = eventFieldRules[fieldId];
+            if (!rules) return '';
+
+            const trimmed = (value || '').trim();
+
+            if (rules.required && !trimmed)
+                return `${rules.name} is required.`;
+
+            if (!trimmed) return ''; 
+
+            if (rules.trim && value !== value.trim())
+                return `${rules.name} cannot have leading or trailing spaces.`;
+
+            if (rules.noMultiSpace && / {2,}/.test(value))
+                return `${rules.name} cannot contain multiple consecutive spaces.`;
+
+            if (rules.minLength && trimmed.length < rules.minLength)
+                return `${rules.name} must be at least ${rules.minLength} characters.`;
+
+            if (rules.maxLength && trimmed.length > rules.maxLength)
+                return `${rules.name} cannot exceed ${rules.maxLength} characters.`;
+
+            if (rules.pattern && !rules.pattern.test(trimmed))
+                return rules.patternMessage || `${rules.name} contains invalid characters.`;
+
+            if (fieldId === 'eventDate') {
+                const today    = new Date();
+                today.setHours(0, 0, 0, 0);
+                const selected = new Date(value);
+                if (selected < today)
+                    return "Event date must be greater than today's date.";
+            }
+
+            if (fieldId === 'title') {
+                const candidateSlug = slugifyTitle(trimmed);
+                if (allEventSlugs.includes(candidateSlug))
+                    return 'An event with this title already exists.';
+            }
+
+            return '';
+        }
+
+        function validateTimes() {
+            const start = document.getElementById('startTime').value;
+            const end   = document.getElementById('endTime').value;
+            if (start && end && end <= start) {
+                showFieldError('endTime', 'End time must be greater than start time.');
+                return false;
+            }
+            if (end) showFieldError('endTime', validateEventField('endTime', end));
+            return true;
+        }
+
+        function showCategoriesError() {
+            const errSpan = document.getElementById('categories-error');
+            const btn     = document.getElementById('categoriesDropdownBtn');
+            const error   = selectedCategories.length === 0 ? 'At least one category is required.' : '';
+
+            if (errSpan) {
+                errSpan.textContent = error;
+                errSpan.classList.toggle('hidden', !error);
+            }
+            if (btn) {
+                btn.classList.toggle('border-red-500',   !!error);
+                btn.classList.toggle('border-green-500', !error);
+                btn.classList.toggle('border-gray-300',  !!error);
+            }
+        }
+
+        function validateFileInput(fieldId) {
+            const input = document.getElementById(fieldId);
+            const errSpan = document.getElementById(fieldId + '-error');
+            if (!input || !errSpan) return '';
+
+            const allowedExts = ['png', 'svg', 'jpg', 'jpeg'];
+            const maxSize     = 5 * 1024 * 1024;
+            const errors      = [];
+
+            Array.from(input.files).forEach(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!allowedExts.includes(ext)) {
+                    errors.push(`'${file.name}': invalid type '.${ext}'. Allowed: png, svg, jpg, jpeg.`);
+                } else if (file.size > maxSize) {
+                    errors.push(`'${file.name}': ${(file.size / (1024 * 1024)).toFixed(2)} MB exceeds the 5 MB limit.`);
+                }
+            });
+
+            const errorMsg = errors.join(' ');
+            errSpan.textContent = errorMsg;
+            errSpan.classList.toggle('hidden', !errorMsg);
+            return errorMsg;
+        }
+
+        function validateForm() {
+            let hasErrors = false;
+
+            
+            ['title', 'shortDescription', 'longDescription', 'venue',
+             'eventDate', 'startTime', 'endTime'].forEach(id => {
+                const val   = (document.getElementById(id) || {}).value || '';
+                const error = validateEventField(id, val);
+                showFieldError(id, error);
+                if (error) hasErrors = true;
+            });
+
+            
+            if (!validateTimes()) hasErrors = true;
+
+            ['country', 'state', 'city'].forEach(id => {
+                const val   = (document.getElementById(id) || {}).value || '';
+                const error = val ? '' : `${eventFieldRules[id].name} is required.`;
+                showFieldError(id, error);
+                if (error) hasErrors = true;
+            });
+
+            if (selectedCategories.length === 0) {
+                showCategoriesError();
+                hasErrors = true;
+            }
+
+            const fiInput = document.getElementById('featureImage');
+            if (!fiInput.files || fiInput.files.length === 0) {
+                const errSpan = document.getElementById('featureImage-error');
+                if (errSpan) { errSpan.textContent = 'Feature image is required.'; errSpan.classList.remove('hidden'); }
+                hasErrors = true;
+            } else {
+                if (validateFileInput('featureImage')) hasErrors = true;
+            }
+
+            if (validateFileInput('extraImages')) hasErrors = true;
+
+            return !hasErrors;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllEventSlugs();
+
+            ['title', 'shortDescription', 'longDescription', 'venue'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const debouncedFn = debounce(function () {
+                    showFieldError(id, validateEventField(id, this.value));
+                }, 350);
+                el.addEventListener('input', debouncedFn);
+                el.addEventListener('blur',  function () {
+                    showFieldError(id, validateEventField(id, this.value));
+                });
+            });
+
+            ['eventDate', 'startTime', 'endTime'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('change', function () {
+                    showFieldError(id, validateEventField(id, this.value));
+                    if (id === 'startTime' || id === 'endTime') validateTimes();
+                });
+                el.addEventListener('blur', function () {
+                    showFieldError(id, validateEventField(id, this.value));
+                    if (id === 'startTime' || id === 'endTime') validateTimes();
+                });
+            });
+
+            document.getElementById('city').addEventListener('change', function () {
+                showFieldError('city', this.value ? '' : 'City is required.');
+            });
+
+            document.getElementById('featureImage').addEventListener('change', function () {
+                if (this.files.length === 0) {
+                    showFieldError('featureImage', 'Feature image is required.');
+                } else {
+                    validateFileInput('featureImage');
+                }
+            });
+
+            document.getElementById('extraImages').addEventListener('change', function () {
+                validateFileInput('extraImages');
+            });
         });
     </script>
 </body>

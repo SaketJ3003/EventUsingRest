@@ -215,7 +215,7 @@ class CountrySerializer(serializers.Serializer):
         elif self.instance:
             if Country.objects.filter(name=value).exclude(pk=self.instance.pk).exists():
                 raise serializers.ValidationError("A country with this name already exists.")
-        return value
+        return value.title()
 
     def create(self, validated_data):
         return Country.objects.create(**validated_data)
@@ -342,7 +342,7 @@ class EventSerializer(serializers.Serializer):
     
     def validate_event_date(self, value):
         if value:
-            if value <= date.today():
+            if value < date.today():
                 raise serializers.ValidationError("Event Date should be greater than Today's Date")
         return value
 
