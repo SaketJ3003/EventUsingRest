@@ -15,39 +15,39 @@
             <nav class="flex-1 p-4">
                 <ul class="space-y-2">
                     <li>
-                        <a href="/event/admin/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-700 text-white font-medium">
+                        <a href="/event/admin/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-full bg-gray-700 text-white font-medium">
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Categories
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/tags/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/tags/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Tags
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/countries/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/countries/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Countries
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/states/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/states/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             States
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/cities/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/cities/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Cities
                         </a>
                     </li>
                 </ul>
             </nav>
             <div class="p-4 border-t border-gray-700">
-                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-600 text-gray-300 hover:text-white transition">
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-full hover:bg-red-600 text-gray-300 hover:text-white transition">
                     Logout
                 </button>
             </div>
@@ -65,29 +65,60 @@
                 <div id="errorMessage" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800"></div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow p-6">
+                    <div class="bg-white rounded-full shadow p-6 hover:scale-105 transition-transform duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm font-medium">Total Events</p>
                                 <p class="text-3xl font-bold text-gray-900 mt-2">{{ events_count|default:0 }}</p>
                             </div>
+                            <div class="bg-yellow-50 p-3 rounded-full">
+                                <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org">
+                                    <defs>
+]                                        <linearGradient id="ticketGrad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#f59e0b" /> 
+                                        <stop offset="100%" stop-color="#ef4444" />
+                                        </linearGradient>
+                                        
+                                        <mask id="ticketMask">
+                                        <rect x="4" y="10" width="32" height="20" rx="4" fill="white" />
+                                        <circle cx="4" cy="20" r="4" fill="black" />
+                                        <circle cx="36" cy="20" r="4" fill="black" />
+                                        </mask>
+                                    </defs>
+
+\                                    <rect x="4" y="10" width="32" height="20" rx="4" fill="url(#ticketGrad)" mask="url(#ticketMask)" />
+                                    
+                                    <line x1="14" y1="12" x2="14" y2="28" stroke="white" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.6" />                                    
+                                    <rect x="4.5" y="10.5" width="31" height="19" rx="3.5" stroke="white" stroke-opacity="0.2" mask="url(#ticketMask)" />
+                                </svg>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow p-6">
+                    <div class="bg-white rounded-full shadow p-6 hover:scale-105 transition-transform duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm font-medium">Total Categories</p>
                                 <p class="text-3xl font-bold text-gray-900 mt-2">{{ categories_count|default:0 }}</p>
                             </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                </svg>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow p-6">
+                    <div class="bg-white rounded-full shadow p-6 hover:scale-105 transition-transform duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm font-medium">Total Tags</p>
                                 <p class="text-3xl font-bold text-gray-900 mt-2">{{ tags_count|default:0 }}</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
                             </div>
                         </div>
                     </div>
@@ -96,22 +127,22 @@
                 <div class="mb-6">
                     <div class="flex gap-4 items-center flex-wrap">
                         <input type="text" id="searchInput" placeholder="Search by name or slug..." 
-                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                            class="px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
                             oninput="filterEvents()">
-                        <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onchange="filterEvents()">
+                        <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500" onchange="filterEvents()">
                             <option value="all">All Categories</option>
                         </select>
-                        <select id="tagFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onchange="filterEvents()">
+                        <select id="tagFilter" class="px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500" onchange="filterEvents()">
                             <option value="all">All Tags</option>
                         </select>
-                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onchange="filterEvents()">
+                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500" onchange="filterEvents()">
                             <option value="all">All Status</option>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
                     </div>
                     <div class="mt-4 flex justify-end">
-                        <a href="/event/template/create-event/" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
+                        <a href="/event/template/create-event/" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition">
                             + Create Event
                         </a>
                     </div>
@@ -121,6 +152,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
@@ -131,7 +163,7 @@
                         </thead>
                         <tbody id="eventsTableBody" class="bg-white divide-y divide-gray-200">
                             <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">Loading events...</td>
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">Loading events...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -141,10 +173,10 @@
                             <span id="paginationInfo">Loading...</span>
                         </div>
                         <div class="flex gap-2">
-                            <button id="prevBtn" onclick="loadPage('prev')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <button id="prevBtn" onclick="loadPage('prev')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                                 Previous
                             </button>
-                            <button id="nextBtn" onclick="loadPage('next')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <button id="nextBtn" onclick="loadPage('next')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                                 Next
                             </button>
                         </div>
@@ -336,12 +368,18 @@
             const tbody = document.getElementById('eventsTableBody');
             
             if (events.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No events found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No events found</td></tr>';
                 return;
             }
 
             tbody.innerHTML = events.map(event => `
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:scale-105 transition-transform duration-300 ease-in-out cursor-default">
+                    <td class="px-6 py-4">
+                        ${event.feature_image 
+                            ? `<img src="${event.feature_image}" alt="${event.title}" class="w-14 h-14 object-cover rounded-lg border border-gray-200">` 
+                            : `<div class="w-14 h-14 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 text-xs">No Image</div>`
+                        }
+                    </td>
                     <td class="px-6 py-4">
                         <div class="text-sm font-medium text-gray-900">${event.title}</div>
                         <div class="text-sm text-gray-500">${event.slug}</div>
@@ -497,7 +535,7 @@
             modalContent.innerHTML = `
                 <div class="space-y-6">
                     ${event.feature_image ? `
-                        <div class="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
+                        <div class="w-full h-64 bg-gray-100 rounded-lg overflow-hidden ">
                             <img src="${event.feature_image}" alt="${event.title}" class="w-full h-full object-cover">
                         </div>
                     ` : ''}
@@ -620,7 +658,7 @@
                     ` : ''}
                     
                     <div class="flex justify-end gap-3 pt-4 border-t">
-                        <button onclick="closeViewModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                        <button onclick="closeViewModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">
                             Close
                         </button>
                     </div>

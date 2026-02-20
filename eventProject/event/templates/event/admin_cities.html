@@ -15,39 +15,39 @@
             <nav class="flex-1 p-4">
                 <ul class="space-y-2">
                     <li>
-                        <a href="/event/admin/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Categories
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/tags/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/tags/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Tags
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/countries/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/countries/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Countries
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/states/" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/event/admin/states/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             States
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/cities/" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-700 text-white font-medium">
+                        <a href="/event/admin/cities/" class="flex items-center gap-3 px-4 py-3 rounded-full bg-gray-700 text-white font-medium">
                             Cities
                         </a>
                     </li>
                 </ul>
             </nav>
             <div class="p-4 border-t border-gray-700">
-                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-600 text-gray-300 hover:text-white transition">
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-full hover:bg-red-600 text-gray-300 hover:text-white transition">
                     Logout
                 </button>
             </div>
@@ -67,18 +67,18 @@
                 <div class="mb-6 flex justify-between items-center gap-4">
                     <div class="flex gap-4 flex-1">
                         <input type="text" id="searchInput" placeholder="Search cities..." 
-                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 w-64"
+                            class="px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 w-64"
                             oninput="filterCities()">
-                        <select id="countryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        <select id="countryFilter" class="px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500"
                             onchange="onCountryFilterChange()">
                             <option value="">All Countries</option>
                         </select>
-                        <select id="stateFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        <select id="stateFilter" class="px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500"
                             onchange="filterCities()">
                             <option value="">All States</option>
                         </select>
                     </div>
-                    <button onclick="openAddModal()" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
+                    <button onclick="openAddModal()" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition">
                         + Add City
                     </button>
                 </div>
@@ -87,8 +87,8 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.No</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cities</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">State</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
@@ -104,20 +104,19 @@
                     </table>
                 </div>
 
-                <!-- Pagination Controls -->
                 <div id="paginationControls" class="mt-6 flex items-center justify-between">
                     <div class="text-sm text-gray-700">
                         Showing <span id="pageInfo"></span>
                     </div>
                     <div class="flex gap-2">
                         <button id="prevBtn" onclick="loadPage(currentPage - 1)" 
-                            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled>
                             Previous
                         </button>
                         <span id="pageNumbers" class="flex items-center px-4"></span>
                         <button id="nextBtn" onclick="loadPage(currentPage + 1)" 
-                            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled>
                             Next
                         </button>
@@ -138,13 +137,14 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">City Name</label>
                         <input type="text" id="cityName" maxlength="100" 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500" 
                             placeholder="Enter city name">
+                        <span id="cityName-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
                         <select id="cityCountryModal" 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500"
                             onchange="onModalCountryChange()">
                             <option value="">Select a country</option>
                         </select>
@@ -152,15 +152,16 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
                         <select id="cityState" 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500">
                             <option value="">Select a state</option>
                         </select>
+                        <span id="cityState-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                     </div>
                 </form>
             </div>
             <div class="p-6 border-t flex gap-4 justify-end">
-                <button onclick="closeModal()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                <button onclick="saveCity()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+                <button onclick="closeModal()" class="px-6 py-2 border border-gray-300 rounded-full hover:bg-gray-50">Cancel</button>
+                <button onclick="saveCity()" class="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">Save</button>
             </div>
         </div>
     </div>
@@ -169,6 +170,7 @@
         let allCities = [];
         let allStates = [];
         let allCountries = [];
+        let allCitySlugs = [];  
         let isEditMode = false;
         let currentPage = 1;
         let totalPages = 1;
@@ -327,6 +329,7 @@
                     totalPages = Math.ceil(totalCount / 10);
                     renderCities(allCities);
                     updatePaginationControls();
+                    loadAllCitySlugs();
                 } else {
                     showError('Failed to load cities');
                 }
@@ -342,15 +345,17 @@
             if (cities.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No cities found</td></tr>';
                 return;
-            }
+            }  
+            
+            const startIndex = (currentPage - 1) * 10;
 
-            tbody.innerHTML = cities.map(city => {
+            tbody.innerHTML = cities.map((city, index) => {
                 const stateName = city.state_detail ? city.state_detail.name : 'Unknown';
                 const countryName = city.state_detail && city.state_detail.country ? city.state_detail.country.name : 'Unknown';
                 
                 return `
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 text-sm text-gray-900">${city.id}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">${startIndex + index + 1}</td>
                         <td class="px-6 py-4 text-sm font-medium text-gray-900">${city.name}</td>
                         <td class="px-6 py-4 text-sm text-gray-900">${stateName}</td>
                         <td class="px-6 py-4 text-sm text-gray-900">${countryName}</td>
@@ -391,6 +396,7 @@
             document.getElementById('cityName').value = '';
             document.getElementById('cityCountryModal').value = '';
             document.getElementById('cityState').innerHTML = '<option value="">Select a state</option>';
+            clearCityErrors();
             document.getElementById('cityModal').classList.remove('hidden');
         }
 
@@ -411,32 +417,27 @@
             setTimeout(() => {
                 document.getElementById('cityState').value = city.state_detail ? city.state_detail.id : '';
             }, 0);
-            
+
+            clearCityErrors();
             document.getElementById('cityModal').classList.remove('hidden');
         }
 
         function closeModal() {
             document.getElementById('cityModal').classList.add('hidden');
+            clearCityErrors();
         }
 
         async function saveCity() {
-            const name = document.getElementById('cityName').value.trim();
+            const name  = document.getElementById('cityName').value;
             const state = document.getElementById('cityState').value;
 
-            if (!name) {
-                showError('City name is required');
-                return;
-            }
+            const nameError  = validateCityName(name);
+            const stateError = state ? '' : 'State is required.';
+            showCityFieldError('cityName',  nameError);
+            showCityFieldError('cityState', stateError);
+            if (nameError || stateError) return;
 
-            if (!state) {
-                showError('State is required');
-                return;
-            }
-
-            const cityData = { 
-                name: name,
-                state: state
-            };
+            const cityData = { name: name, state: state };
 
             try {
                 const accessToken = localStorage.getItem('access_token');
@@ -464,8 +465,14 @@
                     loadCities();
                 } else {
                     const errorData = await response.json();
-                    const errors = Object.entries(errorData).map(([key, value]) => `${key}: ${value}`);
-                    showError(errors);
+                    if (errorData.name) {
+                        showCityFieldError('cityName', Array.isArray(errorData.name) ? errorData.name[0] : errorData.name);
+                    } else if (errorData.state) {
+                        showCityFieldError('cityState', Array.isArray(errorData.state) ? errorData.state[0] : errorData.state);
+                    } else {
+                        const errors = Object.entries(errorData).map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`);
+                        showError(errors);
+                    }
                 }
             } catch (error) {
                 console.error('Error saving city:', error);
@@ -538,12 +545,99 @@
                 await loadStates();
                 await loadCities();
                 
-                // Populate state filter after states are loaded
                 const stateFilterSelect = document.getElementById('stateFilter');
                 stateFilterSelect.innerHTML = '<option value="">All States</option>' + 
                     allStates.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
             }
+
+            function debounce(fn, delay) {
+                let timer;
+                return function (...args) {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn.apply(this, args), delay);
+                };
+            }
+
+            const nameInput = document.getElementById('cityName');
+            nameInput.addEventListener('input', debounce(function () {
+                showCityFieldError('cityName', validateCityName(this.value));
+            }, 300));
+            nameInput.addEventListener('blur', function () {
+                showCityFieldError('cityName', validateCityName(this.value));
+            });
+
+            document.getElementById('cityState').addEventListener('change', function () {
+                showCityFieldError('cityState', this.value ? '' : 'State is required.');
+            });
         });
+
+        function generateSlug(value) {
+            return value.trim().toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+        }
+
+        async function loadAllCitySlugs() {
+            try {
+                let url = '/event/cities/';
+                allCitySlugs = [];
+                while (url) {
+                    const response = await fetch(url);
+                    if (!response.ok) break;
+                    const data = await response.json();
+                    (data.results || data).forEach(c => allCitySlugs.push({ id: c.id, slug: c.slug }));
+                    url = data.next;
+                }
+            } catch (e) {
+                console.error('Error loading city slugs:', e);
+            }
+        }
+
+        function validateCityName(value) {
+            if (!value || !value.trim())
+                return 'City name is required.';
+            if (value !== value.trim())
+                return 'City name cannot have leading or trailing spaces.';
+            if (/ {2,}/.test(value))
+                return 'City name cannot contain multiple consecutive spaces.';
+            if (value.trim().length < 3)
+                return 'City name must be at least 3 characters.';
+            if (value.trim().length > 100)
+                return 'City name cannot exceed 100 characters.';
+            if (!/^[a-zA-Z]+(\s[a-zA-Z]+)*$/.test(value.trim()))
+                return 'City name can only contain letters and single spaces between words.';
+            const candidateSlug = generateSlug(value);
+            const editingId = isEditMode ? parseInt(document.getElementById('cityId').value) : null;
+            const duplicate = allCitySlugs.find(c => c.slug === candidateSlug && c.id !== editingId);
+            if (duplicate)
+                return 'A city with this name already exists.';
+            return '';
+        }
+
+        function showCityFieldError(fieldId, errorMessage) {
+            const input   = document.getElementById(fieldId);
+            const errSpan = document.getElementById(fieldId + '-error');
+            if (!input || !errSpan) return;
+            const hasValue = !!input.value;
+            input.classList.toggle('border-red-500',   !!errorMessage);
+            input.classList.toggle('border-green-500', !errorMessage && hasValue);
+            input.classList.toggle('border-gray-300',  !errorMessage && !hasValue);
+            errSpan.textContent = errorMessage;
+            errSpan.classList.toggle('hidden', !errorMessage);
+        }
+
+        function clearCityErrors() {
+            ['cityName', 'cityState'].forEach(id => {
+                const input   = document.getElementById(id);
+                const errSpan = document.getElementById(id + '-error');
+                if (!input || !errSpan) return;
+                input.classList.remove('border-red-500', 'border-green-500');
+                input.classList.add('border-gray-300');
+                errSpan.textContent = '';
+                errSpan.classList.add('hidden');
+            });
+        }
     </script>
 </body>
 </html>
