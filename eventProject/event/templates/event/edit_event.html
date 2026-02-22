@@ -244,6 +244,9 @@
         let allTags = [];
         let currentEvent = null;
         let allEventSlugs = [];  
+        let removedFeatureImage = false;
+        let removedGalleryImagePaths = [];
+        let newExtraFiles = [];
 
         function logout() {
             localStorage.removeItem('access_token');
@@ -485,6 +488,8 @@
                     preview.innerHTML = `
                         <div class="mt-3 relative inline-block">
                             <img src="${e.target.result}" class="h-32 w-32 object-cover rounded" alt="Preview">
+                            <button type="button" onclick="removeNewFeatureImage()"
+                                class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700 leading-none">✕</button>
                             <p class="text-xs text-gray-500 mt-1">New image</p>
                         </div>
                     `;
@@ -493,21 +498,48 @@
             }
         }
 
+        function removeCurrentFeatureImage() {
+            removedFeatureImage = true;
+            document.getElementById('currentFeatureImage').innerHTML =
+                '<p class="text-xs text-gray-400 italic mt-1">Feature image removed</p>';
+        }
+
+        function removeCurrentGalleryImage(url, el) {
+            removedGalleryImagePaths.push(url);
+            el.remove();
+        }
+
+        function removeNewFeatureImage() {
+            document.getElementById('featureImagePreview').innerHTML = '';
+            document.getElementById('featureImage').value = '';
+        }
+
         function previewExtraImages() {
-            const files = document.getElementById('extraImages').files;
+            newExtraFiles = Array.from(document.getElementById('extraImages').files);
+            renderNewExtraImagePreviews();
+        }
+
+        function renderNewExtraImagePreviews() {
             const preview = document.getElementById('extraImagesPreview');
             preview.innerHTML = '';
-
-            Array.from(files).forEach(file => {
+            newExtraFiles.forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const img = document.createElement('div');
-                    img.className = 'relative';
-                    img.innerHTML = `<img src="${e.target.result}" class="h-24 w-24 object-cover rounded" alt="Preview">`;
-                    preview.appendChild(img);
+                    const div = document.createElement('div');
+                    div.className = 'relative w-fit';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" class="h-24 w-24 object-cover rounded" alt="Preview">
+                        <button type="button" onclick="removeNewExtraImage(${index})"
+                            class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700 leading-none">✕</button>`;
+                    preview.appendChild(div);
                 };
                 reader.readAsDataURL(file);
             });
+        }
+
+        function removeNewExtraImage(index) {
+            newExtraFiles.splice(index, 1);
+            renderNewExtraImagePreviews();
         }
 
         async function loadCountries() {
@@ -689,14 +721,22 @@
 
             if (event.feature_image) {
                 document.getElementById('currentFeatureImage').innerHTML = `
-                    <img src="${event.feature_image}" class="h-32 w-32 object-cover rounded" alt="Current feature image">
+                    <div class="relative inline-block">
+                        <img src="${event.feature_image}" class="h-32 w-32 object-cover rounded" alt="Current feature image">
+                        <button type="button" onclick="removeCurrentFeatureImage()"
+                            class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700 leading-none">✕</button>
+                    </div>
                 `;
             }
 
             if (event.extraImages && Array.isArray(event.extraImages)) {
                 const container = document.getElementById('currentExtraImages');
                 container.innerHTML = event.extraImages.map(img => `
-                    <img src="${img}" class="h-24 w-24 object-cover rounded" alt="Extra image">
+                    <div class="relative w-fit">
+                        <img src="${img}" class="h-24 w-24 object-cover rounded" alt="Extra image">
+                        <button type="button" onclick="removeCurrentGalleryImage('${img}', this.parentElement)"
+                            class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700 leading-none">✕</button>
+                    </div>
                 `).join('');
             }
         }
@@ -741,10 +781,16 @@
             if (featureImage) {
                 formData.append('feature_image', featureImage);
             }
-            
-            const extraImages = document.getElementById('extraImages').files;
-            if (extraImages.length > 0) {
-                Array.from(extraImages).forEach(img => {
+
+            if (removedFeatureImage) {
+                formData.append('remove_feature_image', 'true');
+            }
+            removedGalleryImagePaths.forEach(path => {
+                formData.append('remove_extra_images', path);
+            });
+
+            if (newExtraFiles.length > 0) {
+                newExtraFiles.forEach(img => {
                     formData.append('extraImages', img);
                 });
             }
@@ -864,16 +910,17 @@
         }
 
         const eventFieldRules = {
-            title:            { name: 'Title',             required: true,  minLength: 3,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Title can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
-            shortDescription: { name: 'Short description', required: true,  maxLength: 255, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Short Description can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
-            longDescription:  { name: 'Long description',  required: true,  minLength: 20, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Long Description can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
-            venue:            { name: 'Venue',             required: true,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Venue can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
+            title:            { name: 'Title',             required: true,  minLength: 3,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Title must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
+            shortDescription: { name: 'Short description', required: true,  maxLength: 255, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Short Description must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
+            longDescription:  { name: 'Long description',  required: true,  minLength: 20, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Long Description must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
+            venue:            { name: 'Venue',             required: true,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Venue must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
             eventDate:        { name: 'Event date',        required: true },
             startTime:        { name: 'Start time',        required: true },
             endTime:          { name: 'End time',          required: true },
             country:          { name: 'Country',           required: true },
             state:            { name: 'State',             required: true },
             city:             { name: 'City',              required: true },
+            feature_image:    { name: 'Feature Image',     required: true },
         };
 
         function debounce(fn, delay) {
@@ -1021,6 +1068,14 @@
             }
 
             if (validateFileInput('featureImage')) hasErrors = true;
+
+            const hasExistingFeatureImage = !removedFeatureImage && currentEvent && currentEvent.feature_image;
+            const hasNewFeatureImage = document.getElementById('featureImage').files.length > 0;
+            if (!hasExistingFeatureImage && !hasNewFeatureImage) {
+                const errSpan = document.getElementById('featureImage-error');
+                if (errSpan) { errSpan.textContent = 'Feature Image is required.'; errSpan.classList.remove('hidden'); }
+                hasErrors = true;
+            }
 
             if (validateFileInput('extraImages')) hasErrors = true;
 

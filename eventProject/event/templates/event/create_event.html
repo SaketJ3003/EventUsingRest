@@ -228,6 +228,8 @@
         let selectedTags = [];
         let allCategories = [];
         let allTags = [];
+        let newFeatureFile = null;
+        let newExtraFiles = [];
 
         function logout() {
             localStorage.removeItem('access_token');
@@ -466,13 +468,17 @@
             const file = document.getElementById('featureImage').files[0];
             const preview = document.getElementById('featureImagePreview');
             preview.innerHTML = '';
+            newFeatureFile = null;
 
             if (file) {
+                newFeatureFile = file;
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.innerHTML = `
                         <div class="mt-3 relative inline-block">
                             <img src="${e.target.result}" class="h-32 w-32 object-cover rounded" alt="Preview">
+                            <button type="button" onclick="removeNewFeatureImage()"
+                                class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700 leading-none">✕</button>
                         </div>
                     `;
                 };
@@ -480,21 +486,40 @@
             }
         }
 
+        function removeNewFeatureImage() {
+            document.getElementById('featureImagePreview').innerHTML = '';
+            document.getElementById('featureImage').value = '';
+            newFeatureFile = null;
+            const errSpan = document.getElementById('featureImage-error');
+            if (errSpan) { errSpan.textContent = 'Feature image is required.'; errSpan.classList.remove('hidden'); }
+        }
+
         function previewExtraImages() {
-            const files = document.getElementById('extraImages').files;
+            newExtraFiles = Array.from(document.getElementById('extraImages').files);
+            renderNewExtraImagePreviews();
+        }
+
+        function renderNewExtraImagePreviews() {
             const preview = document.getElementById('extraImagesPreview');
             preview.innerHTML = '';
-
-            Array.from(files).forEach(file => {
+            newExtraFiles.forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const img = document.createElement('div');
-                    img.className = 'relative';
-                    img.innerHTML = `<img src="${e.target.result}" class="h-24 w-24 object-cover rounded" alt="Preview">`;
-                    preview.appendChild(img);
+                    const div = document.createElement('div');
+                    div.className = 'relative w-fit';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" class="h-24 w-24 object-cover rounded" alt="Preview">
+                        <button type="button" onclick="removeNewExtraImage(${index})"
+                            class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700 leading-none">✕</button>`;
+                    preview.appendChild(div);
                 };
                 reader.readAsDataURL(file);
             });
+        }
+
+        function removeNewExtraImage(index) {
+            newExtraFiles.splice(index, 1);
+            renderNewExtraImagePreviews();
         }
 
         async function loadCountries() {
@@ -636,15 +661,13 @@
             });
 
 
-            const featureImage = document.getElementById('featureImage').files[0];
-            if (featureImage) {
-                formData.append('feature_image', featureImage);
+            if (newFeatureFile) {
+                formData.append('feature_image', newFeatureFile);
             }
 
 
-            const extraImages = document.getElementById('extraImages').files;
-            if (extraImages.length > 0) {
-                Array.from(extraImages).forEach(img => {
+            if (newExtraFiles.length > 0) {
+                newExtraFiles.forEach(img => {
                     formData.append('extraImages', img);
                 });
             }
@@ -751,10 +774,10 @@
         // Real-time validation 
 
         const eventFieldRules = {
-            title:            { name: 'Title',             required: true,  minLength: 3,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Title can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
-            shortDescription: { name: 'Short description', required: true,  maxLength: 255, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Short Description can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
-            longDescription:  { name: 'Long description',  required: true,  minLength: 20, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Long Description can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
-            venue:            { name: 'Venue',             required: true,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z]+([ ][a-zA-Z0-9]+)*$/, patternMessage: 'Venue can only contain letters, numbers, spaces and common punctuation (First word should contain only letters)' },
+            title:            { name: 'Title',             required: true,  minLength: 3,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Title must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
+            shortDescription: { name: 'Short description', required: true,  maxLength: 255, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Short Description must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
+            longDescription:  { name: 'Long description',  required: true,  minLength: 20, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Long Description must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
+            venue:            { name: 'Venue',             required: true,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Venue must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
             eventDate:        { name: 'Event date',        required: true },
             startTime:        { name: 'Start time',        required: true },
             endTime:          { name: 'End time',          required: true },
@@ -908,8 +931,7 @@
                 hasErrors = true;
             }
 
-            const fiInput = document.getElementById('featureImage');
-            if (!fiInput.files || fiInput.files.length === 0) {
+            if (!newFeatureFile) {
                 const errSpan = document.getElementById('featureImage-error');
                 if (errSpan) { errSpan.textContent = 'Feature image is required.'; errSpan.classList.remove('hidden'); }
                 hasErrors = true;
@@ -917,7 +939,26 @@
                 if (validateFileInput('featureImage')) hasErrors = true;
             }
 
-            if (validateFileInput('extraImages')) hasErrors = true;
+            if (newExtraFiles.length > 0) {
+                const allowedExts = ['png', 'svg', 'jpg', 'jpeg'];
+                const maxSize = 5 * 1024 * 1024;
+                const errSpan = document.getElementById('extraImages-error');
+                const errors = [];
+                newExtraFiles.forEach(file => {
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    if (!allowedExts.includes(ext)) {
+                        errors.push(`'${file.name}': invalid type '.${ext}'. Allowed: png, svg, jpg, jpeg.`);
+                    } else if (file.size > maxSize) {
+                        errors.push(`'${file.name}': ${(file.size / (1024 * 1024)).toFixed(2)} MB exceeds the 5 MB limit.`);
+                    }
+                });
+                if (errors.length > 0) {
+                    if (errSpan) { errSpan.textContent = errors.join(' '); errSpan.classList.remove('hidden'); }
+                    hasErrors = true;
+                } else {
+                    if (errSpan) { errSpan.textContent = ''; errSpan.classList.add('hidden'); }
+                }
+            }
 
             return !hasErrors;
         }
@@ -955,7 +996,7 @@
             });
 
             document.getElementById('featureImage').addEventListener('change', function () {
-                if (this.files.length === 0) {
+                if (!newFeatureFile) {
                     showFieldError('featureImage', 'Feature image is required.');
                 } else {
                     validateFileInput('featureImage');
