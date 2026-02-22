@@ -384,10 +384,18 @@ class EventSerializer(serializers.Serializer):
         return [f'/media/{image}' for image in images]
 
     def to_internal_value(self, data):
+        print(data)
         result = super().to_internal_value(data)
-        
+        print(result)
         self.tags_data = result.pop('tags', [])
         self.images_data = result.pop('extraImages', [])
+        
+        self.remove_feature_image_flag = data.get('remove_feature_image', 'false') == 'true'
+        if hasattr(data, 'getlist'):
+            self.remove_extra_image_paths = data.getlist('remove_extra_images')
+        else:
+            val = data.get('remove_extra_images', [])
+            self.remove_extra_image_paths = val if isinstance(val, list) else ([val] if val else [])
         
         return result
 
@@ -622,9 +630,26 @@ class EventSerializer(serializers.Serializer):
         
         validated_data.pop('slug', None)
         
+        if getattr(self, 'remove_feature_image_flag', False):
+            if instance.feature_image:
+                instance.feature_image.delete(save=False)
+            instance.feature_image = None
+
         if 'feature_image' in validated_data:
             instance.feature_image = validated_data.get('feature_image')
-        
+
+        for img_url in getattr(self, 'remove_extra_image_paths', []):
+            if not img_url:
+                continue
+            rel_path = img_url.split('/media/', 1)[1] if '/media/' in img_url else img_url
+            try:
+                img_obj = EventImages.objects.get(image=rel_path)
+                instance.extraImages.remove(img_obj)
+                img_obj.image.delete(save=False)
+                img_obj.delete()
+            except EventImages.DoesNotExist:
+                pass
+
         if 'category' in validated_data:
             category_ids = validated_data.get('category')
             categories = Category.objects.filter(id__in=category_ids)
@@ -639,15 +664,12 @@ class EventSerializer(serializers.Serializer):
         
         if hasattr(self, 'images_data') and self.images_data:
             images_data = self.images_data
-            images = []
             if isinstance(images_data, list):
                 for image in images_data:
                     if image:
                         event_image = EventImages.objects.create(image=image)
-                        images.append(event_image)
-            instance.extraImages.set(images)
+                        instance.extraImages.add(event_image)
         
-        # Update location if provided
         if 'country' in validated_data:
             country_id = validated_data.get('country')
             instance.country = Country.objects.get(id=country_id)
