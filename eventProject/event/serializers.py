@@ -21,8 +21,8 @@ class UserSerializer(serializers.Serializer):
         fields = ['id', 'username', 'first_name','last_name','email','password']
 
     def create(self, validated_data):
-        password = validated_data.pop('password', None)
-        user = User.objects.create(**validated_data, password=password)
+        password = validated_data.pop('password')
+        user = User.objects.create_user(**validated_data, password=password)
         return user
     
     def validate_username(self, value):
@@ -170,7 +170,7 @@ class CategorySerializer(serializers.Serializer):
         return Category.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        print(instance)
+        # print(instance)
         instance.name = validated_data.get('name', instance.name)
         instance.save()
         return instance
@@ -306,6 +306,46 @@ class CitySerializer(serializers.Serializer):
         return instance
 
 
+class EventCardSerializer(serializers.Serializer):
+    slug = serializers.SlugField(read_only=True)
+    title = serializers.CharField(read_only=True)
+    is_active = serializers.BooleanField(read_only=True)
+    short_description = serializers.CharField(read_only=True)
+    feature_image = serializers.SerializerMethodField()
+    event_date = serializers.DateField(read_only=True)
+    start_time = serializers.TimeField(read_only=True)
+    end_time = serializers.TimeField(read_only=True)
+    city = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField()
+    views_count = serializers.IntegerField(read_only=True)
+    category = serializers.SerializerMethodField()
+    tags = serializers.SerializerMethodField()
+
+    def get_feature_image(self, obj):
+        if obj.feature_image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.feature_image.url)
+            return obj.feature_image.url
+        return None
+
+    def get_city(self, obj):
+        if obj.city:
+            return {'id': obj.city.id, 'name': obj.city.name}
+        return None
+
+    def get_state(self, obj):
+        if obj.state:
+            return {'id': obj.state.id, 'name': obj.state.name}
+        return None
+
+    def get_category(self, obj):
+        return [{'id': cat.id, 'name': cat.name} for cat in obj.category.all()]
+
+    def get_tags(self, obj):
+        return [{'id': tag.id, 'name': tag.name} for tag in obj.tags.all()]
+
+
 class EventSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(allow_blank = True, trim_whitespace=False, max_length=100)
@@ -384,9 +424,9 @@ class EventSerializer(serializers.Serializer):
         return [f'/media/{image}' for image in images]
 
     def to_internal_value(self, data):
-        print(data)
+        # print(data)
         result = super().to_internal_value(data)
-        print(result)
+        # print(result)
         self.tags_data = result.pop('tags', [])
         self.images_data = result.pop('extraImages', [])
         

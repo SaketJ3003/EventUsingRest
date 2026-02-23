@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Country Management</title>
+    <title>Tags Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
@@ -15,32 +15,32 @@
             <nav class="flex-1 p-4">
                 <ul class="space-y-2">
                     <li>
-                        <a href="/event/admin/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/categories/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Categories
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/tags/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/tags/" class="flex items-center gap-3 px-4 py-3 rounded-full bg-gray-700 text-white font-medium">
                             Tags
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/countries/" class="flex items-center gap-3 px-4 py-3 rounded-full bg-gray-700 text-white font-medium">
+                        <a href="/admin-panel/countries/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Countries
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/states/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/states/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             States
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/cities/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/cities/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Cities
                         </a>
                     </li>
@@ -56,7 +56,7 @@
         <main class="flex-1 overflow-y-auto">
             <header class="bg-white shadow-sm">
                 <div class="px-8 py-6">
-                    <h2 class="text-2xl font-bold text-gray-900">Country Management</h2>
+                    <h2 class="text-2xl font-bold text-gray-900">Tags Management</h2>
                 </div>
             </header>
 
@@ -65,11 +65,11 @@
                 <div id="errorMessage" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800"></div>
 
                 <div class="mb-6 flex justify-between items-center">
-                    <input type="text" id="searchInput" placeholder="Search countries..." 
+                    <input type="text" id="searchInput" placeholder="Search tags..." 
                         class="px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 w-64"
-                        oninput="filterCountries()">
+                        oninput="filterTags()">
                     <button onclick="openAddModal()" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition">
-                        + Add Country
+                        + Add Tag
                     </button>
                 </div>
 
@@ -78,15 +78,15 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.No</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Countries</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="countriesTableBody" class="bg-white divide-y divide-gray-200">
+                        <tbody id="tagsTableBody" class="bg-white divide-y divide-gray-200">
                             <tr>
-                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">Loading countries...</td>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">Loading tags...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -114,33 +114,37 @@
         </main>
     </div>
 
-    <div id="countryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div id="tagModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
             <div class="p-6 border-b">
-                <h3 class="text-xl font-bold" id="modalTitle">Add Country</h3>
+                <h3 class="text-xl font-bold" id="modalTitle">Add Tag</h3>
             </div>
             <div class="p-6">
-                <form id="countryForm" class="space-y-4">
-                    <input type="hidden" id="countryId">
+                <form id="tagForm" class="space-y-4">
+                    <input type="hidden" id="tagId">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Country Name</label>
-                        <input type="text" id="countryName" maxlength="100" 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tag Name *</label>
+                        <input type="text" id="tagName" maxlength="20" 
                             class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500" 
-                            placeholder="Enter country name">
-                        <span id="countryName-error" class="hidden text-red-500 text-xs mt-1 block"></span>
+                            placeholder="Enter tag name">
+                        <span id="tagName-error" class="hidden text-red-500 text-xs mt-1 block"></span>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="tagActive" checked class="rounded border-gray-300">
+                        <label for="tagActive" class="ml-2 text-sm text-gray-700">Active</label>
                     </div>
                 </form>
             </div>
             <div class="p-6 border-t flex gap-4 justify-end">
                 <button onclick="closeModal()" class="px-6 py-2 border border-gray-300 rounded-full hover:bg-gray-50">Cancel</button>
-                <button onclick="saveCountry()" class="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">Save</button>
+                <button onclick="saveTag()" class="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">Save</button>
             </div>
         </div>
     </div>
 
     <script>
-        let allCountries = [];
-        let allCountrySlugs = [];   
+        let allTags = [];
+        let allTagSlugs = [];   
         let isEditMode = false;
         let currentPage = 1;
         let totalPages = 1;
@@ -188,13 +192,13 @@
             }
         }
 
-        async function loadCountries(url = '/event/countries/') {
+        async function loadTags(url = '/event/tags/') {
             try {
                 const response = await fetch(url);
                 if (response.ok) {
                     const data = await response.json();
-                    allCountries = data.results || data;
-                    totalCount = data.count || allCountries.length;
+                    allTags = data.results || data;
+                    totalCount = data.count || allTags.length;
                     nextUrl = data.next;
                     prevUrl = data.previous;
                     
@@ -205,93 +209,106 @@
                     }
                     
                     totalPages = Math.ceil(totalCount / 10);
-                    renderCountries(allCountries);
+                    renderTags(allTags);
                     updatePaginationControls();
-                    loadAllCountrySlugs();
+                    loadAllTagSlugs();
                 } else {
-                    showError('Failed to load countries');
+                    showError('Failed to load tags');
                 }
             } catch (error) {
-                console.error('Error loading countries:', error);
-                showError('Error loading countries');
+                console.error('Error loading tags:', error);
+                showError('Error loading tags');
             }
         }
 
-        function renderCountries(countries) {
-            const tbody = document.getElementById('countriesTableBody');
+        function renderTags(tags) {
+            const tbody = document.getElementById('tagsTableBody');
             
-            if (countries.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No countries found</td></tr>';
+            if (tags.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No tags found</td></tr>';
                 return;
             }
 
             const startIndex = (currentPage - 1) * 10;
-
-            tbody.innerHTML = countries.map((country, index) => `
+            tbody.innerHTML = tags.map((tag, index) => `
                 <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm text-gray-900">${startIndex + index + 1}</td>
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900">${country.name}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">${country.slug}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900">${new Date(country.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${ startIndex + index + 1}</td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">${tag.name}</div>
+                        <div class="text-sm text-gray-500">${tag.slug}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${tag.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${tag.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${new Date(tag.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</td>
                     <td class="px-6 py-4 text-sm font-medium space-x-2">
-                        <button onclick="openEditModal(${country.id})" class="text-indigo-600 hover:text-indigo-900">Edit</button>
-                        <button onclick="deleteCountry(${country.id})" class="text-red-600 hover:text-red-900">Delete</button>
+                        <button onclick="openEditModal(${tag.id})" class="text-indigo-600 hover:text-indigo-900">Edit</button>
+                        <button onclick="deleteTag(${tag.id})" class="text-red-600 hover:text-red-900">Delete</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function filterCountries() {
+        function filterTags() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allCountries.filter(country => 
-                country.name.toLowerCase().includes(searchTerm)
+            const filtered = allTags.filter(tag => 
+                tag.name.toLowerCase().includes(searchTerm) ||
+                tag.slug.toLowerCase().includes(searchTerm)
             );
-            renderCountries(filtered);
+            renderTags(filtered);
         }
 
         function openAddModal() {
             isEditMode = false;
-            document.getElementById('modalTitle').textContent = 'Add Country';
-            document.getElementById('countryId').value = '';
-            document.getElementById('countryName').value = '';
-            clearCountryNameError();
-            document.getElementById('countryModal').classList.remove('hidden');
+            document.getElementById('modalTitle').textContent = 'Add Tag';
+            document.getElementById('tagId').value = '';
+            document.getElementById('tagName').value = '';
+            document.getElementById('tagActive').checked = true;
+            clearTagNameError();
+            document.getElementById('tagModal').classList.remove('hidden');
         }
 
-        function openEditModal(countryId) {
+        function openEditModal(tagId) {
             isEditMode = true;
-            const country = allCountries.find(c => c.id === countryId);
-            if (!country) return;
+            const tag = allTags.find(t => t.id === tagId);
+            if (!tag) return;
 
-            document.getElementById('modalTitle').textContent = 'Edit Country';
-            document.getElementById('countryId').value = country.id;
-            document.getElementById('countryName').value = country.name;
-            clearCountryNameError();
-            document.getElementById('countryModal').classList.remove('hidden');
+            document.getElementById('modalTitle').textContent = 'Edit Tag';
+            document.getElementById('tagId').value = tag.id;
+            document.getElementById('tagName').value = tag.name;
+            document.getElementById('tagActive').checked = tag.isActive;
+            clearTagNameError();
+            document.getElementById('tagModal').classList.remove('hidden');
         }
 
         function closeModal() {
-            document.getElementById('countryModal').classList.add('hidden');
-            clearCountryNameError();
+            document.getElementById('tagModal').classList.add('hidden');
+            clearTagNameError();
         }
 
-        async function saveCountry() {
-            const name = document.getElementById('countryName').value;
+        async function saveTag() {
+            const name = document.getElementById('tagName').value;
+            const isActive = document.getElementById('tagActive').checked;
 
-            const error = validateCountryName(name);
-            showCountryNameError(error);
+            const error = validateTagName(name);
+            showTagNameError(error);
             if (error) return;
 
-            const countryData = { name: name };
+            const tagData = {
+                name: name,
+                isActive: isActive
+            };
 
             try {
                 const accessToken = localStorage.getItem('access_token');
-                let url = '/event/countries/';
+                let url = '/event/tags/';
                 let method = 'POST';
 
                 if (isEditMode) {
-                    const countryId = document.getElementById('countryId').value;
-                    url = `/event/countries/${countryId}/`;
+                    const tagId = document.getElementById('tagId').value;
+                    url = `/event/tags/${tagId}/`;
                     method = 'PUT';
                 }
 
@@ -301,34 +318,34 @@
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(countryData)
+                    body: JSON.stringify(tagData)
                 });
 
                 if (response.ok) {
-                    showSuccess(`Country ${isEditMode ? 'updated' : 'created'} successfully`);
+                    showSuccess(`Tag ${isEditMode ? 'updated' : 'created'} successfully`);
                     closeModal();
-                    loadCountries();
+                    loadTags();
                 } else {
                     const errorData = await response.json();
                     if (errorData.name) {
-                        showCountryNameError(Array.isArray(errorData.name) ? errorData.name[0] : errorData.name);
+                        showTagNameError(Array.isArray(errorData.name) ? errorData.name[0] : errorData.name);
                     } else {
                         const errors = Object.entries(errorData).map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`);
                         showError(errors);
                     }
                 }
             } catch (error) {
-                console.error('Error saving country:', error);
-                showError('Error saving country');
+                console.error('Error saving tag:', error);
+                showError('Error saving tag');
             }
         }
 
-        async function deleteCountry(countryId) {
-            if (!confirm('Are you sure you want to delete this country? This will also delete all related states and cities.')) return;
+        async function deleteTag(tagId) {
+            if (!confirm('Are you sure you want to delete this tag?')) return;
 
             try {
                 const accessToken = localStorage.getItem('access_token');
-                const response = await fetch(`/event/countries/${countryId}/`, {
+                const response = await fetch(`/event/tags/${tagId}/`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`
@@ -336,14 +353,14 @@
                 });
 
                 if (response.ok) {
-                    showSuccess('Country deleted successfully');
-                    loadCountries();
+                    showSuccess('Tag deleted successfully');
+                    loadTags();
                 } else {
-                    showError('Failed to delete country');
+                    showError('Failed to delete tag');
                 }
             } catch (error) {
-                console.error('Error deleting country:', error);
-                showError('Error deleting country');
+                console.error('Error deleting tag:', error);
+                showError('Error deleting tag');
             }
         }
 
@@ -368,7 +385,7 @@
 
         function loadPage(page) {
             if (page < 1 || page > totalPages) return;
-            loadCountries(`/event/countries/?page=${page}`);
+            loadTags(`/event/tags/?page=${page}`);
         }
 
         function updatePaginationControls() {
@@ -384,7 +401,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const isAdmin = await checkAdmin();
             if (isAdmin) {
-                loadCountries();
+                loadTags();
             }
 
             function debounce(fn, delay) {
@@ -395,12 +412,12 @@
                 };
             }
 
-            const nameInput = document.getElementById('countryName');
+            const nameInput = document.getElementById('tagName');
             nameInput.addEventListener('input', debounce(function () {
-                showCountryNameError(validateCountryName(this.value));
+                showTagNameError(validateTagName(this.value));
             }, 300));
             nameInput.addEventListener('blur', function () {
-                showCountryNameError(validateCountryName(this.value));
+                showTagNameError(validateTagName(this.value));
             });
         });
 
@@ -411,46 +428,46 @@
                 .replace(/-+/g, '-');
         }
 
-        async function loadAllCountrySlugs() {
+        async function loadAllTagSlugs() {
             try {
-                let url = '/event/countries/';
-                allCountrySlugs = [];
+                let url = '/event/tags/';
+                allTagSlugs = [];
                 while (url) {
                     const response = await fetch(url);
                     if (!response.ok) break;
                     const data = await response.json();
-                    (data.results || data).forEach(c => allCountrySlugs.push({ id: c.id, slug: c.slug }));
+                    (data.results || data).forEach(t => allTagSlugs.push({ id: t.id, slug: t.slug }));
                     url = data.next;
                 }
             } catch (e) {
-                console.error('Error loading country slugs:', e);
+                console.error('Error loading tag slugs:', e);
             }
         }
 
-        function validateCountryName(value) {
+        function validateTagName(value) {
             if (!value || !value.trim())
-                return 'Country name is required.';
+                return 'Tag name is required.';
             if (value !== value.trim())
-                return 'Country name cannot have leading or trailing spaces.';
+                return 'Tag name cannot have leading or trailing spaces.';
             if (/ {2,}/.test(value))
-                return 'Country name cannot contain multiple consecutive spaces.';
+                return 'Tag name cannot contain multiple consecutive spaces.';
             if (value.trim().length < 3)
-                return 'Country name must be at least 3 characters.';
-            if (value.trim().length > 100)
-                return 'Country name cannot exceed 100 characters.';
-            if (!/^[a-zA-Z]+([ ][a-zA-Z]+)*$/.test(value.trim()))
-                return 'Country name can only contain letters and single spaces between words.';
+                return 'Tag name must be at least 3 characters.';
+            if (value.trim().length > 20)
+                return 'Tag name cannot exceed 20 characters.';
+            if (!/^[a-zA-Z]+(\s[a-zA-Z]+)*$/.test(value.trim()))
+                return 'Tag name can only contain letters and single spaces between words.';
             const candidateSlug = generateSlug(value);
-            const editingId = isEditMode ? parseInt(document.getElementById('countryId').value) : null;
-            const duplicate = allCountrySlugs.find(s => s.slug === candidateSlug && s.id !== editingId);
+            const editingId = isEditMode ? parseInt(document.getElementById('tagId').value) : null;
+            const duplicate = allTagSlugs.find(s => s.slug === candidateSlug && s.id !== editingId);
             if (duplicate)
-                return 'A country with this name already exists.';
+                return 'A tag with this name already exists.';
             return '';
         }
 
-        function showCountryNameError(errorMessage) {
-            const input   = document.getElementById('countryName');
-            const errSpan = document.getElementById('countryName-error');
+        function showTagNameError(errorMessage) {
+            const input   = document.getElementById('tagName');
+            const errSpan = document.getElementById('tagName-error');
             const hasValue = !!input.value;
             input.classList.toggle('border-red-500',   !!errorMessage);
             input.classList.toggle('border-green-500', !errorMessage && hasValue);
@@ -459,9 +476,9 @@
             errSpan.classList.toggle('hidden', !errorMessage);
         }
 
-        function clearCountryNameError() {
-            const input   = document.getElementById('countryName');
-            const errSpan = document.getElementById('countryName-error');
+        function clearTagNameError() {
+            const input   = document.getElementById('tagName');
+            const errSpan = document.getElementById('tagName-error');
             input.classList.remove('border-red-500', 'border-green-500');
             input.classList.add('border-gray-300');
             errSpan.textContent = '';

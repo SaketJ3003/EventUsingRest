@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tags Management</title>
+    <title>Category Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
@@ -15,32 +15,32 @@
             <nav class="flex-1 p-4">
                 <ul class="space-y-2">
                     <li>
-                        <a href="/event/admin/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/categories/" class="flex items-center gap-3 px-4 py-3 rounded-full bg-gray-700 text-white font-medium">
                             Categories
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/tags/" class="flex items-center gap-3 px-4 py-3 rounded-full bg-gray-700 text-white font-medium">
+                        <a href="/admin-panel/tags/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Tags
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/countries/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/countries/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Countries
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/states/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/states/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             States
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/cities/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/cities/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Cities
                         </a>
                     </li>
@@ -56,7 +56,7 @@
         <main class="flex-1 overflow-y-auto">
             <header class="bg-white shadow-sm">
                 <div class="px-8 py-6">
-                    <h2 class="text-2xl font-bold text-gray-900">Tags Management</h2>
+                    <h2 class="text-2xl font-bold text-gray-900">Category Management</h2>
                 </div>
             </header>
 
@@ -65,11 +65,11 @@
                 <div id="errorMessage" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800"></div>
 
                 <div class="mb-6 flex justify-between items-center">
-                    <input type="text" id="searchInput" placeholder="Search tags..." 
+                    <input type="text" id="searchInput" placeholder="Search categories..." 
                         class="px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 w-64"
-                        oninput="filterTags()">
+                        oninput="filterCategories()">
                     <button onclick="openAddModal()" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition">
-                        + Add Tag
+                        + Add Category
                     </button>
                 </div>
 
@@ -78,15 +78,15 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.No</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categories</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="tagsTableBody" class="bg-white divide-y divide-gray-200">
+                        <tbody id="categoriesTableBody" class="bg-white divide-y divide-gray-200">
                             <tr>
-                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">Loading tags...</td>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">Loading categories...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -114,37 +114,37 @@
         </main>
     </div>
 
-    <div id="tagModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div id="categoryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
             <div class="p-6 border-b">
-                <h3 class="text-xl font-bold" id="modalTitle">Add Tag</h3>
+                <h3 class="text-xl font-bold" id="modalTitle">Add Category</h3>
             </div>
             <div class="p-6">
-                <form id="tagForm" class="space-y-4">
-                    <input type="hidden" id="tagId">
+                <form id="categoryForm" class="space-y-4">
+                    <input type="hidden" id="categoryId">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tag Name *</label>
-                        <input type="text" id="tagName" maxlength="20" 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
+                        <input type="text" id="categoryName" maxlength="20" 
                             class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500" 
-                            placeholder="Enter tag name">
-                        <span id="tagName-error" class="hidden text-red-500 text-xs mt-1 block"></span>
+                            placeholder="Enter category name">
+                        <span id="categoryName-error" class="hidden text-red-500 text-xs mt-1 block"></span>
                     </div>
                     <div class="flex items-center">
-                        <input type="checkbox" id="tagActive" checked class="rounded border-gray-300">
-                        <label for="tagActive" class="ml-2 text-sm text-gray-700">Active</label>
+                        <input type="checkbox" id="categoryActive" checked class="rounded border-gray-300">
+                        <label for="categoryActive" class="ml-2 text-sm text-gray-700">Active</label>
                     </div>
                 </form>
             </div>
             <div class="p-6 border-t flex gap-4 justify-end">
                 <button onclick="closeModal()" class="px-6 py-2 border border-gray-300 rounded-full hover:bg-gray-50">Cancel</button>
-                <button onclick="saveTag()" class="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">Save</button>
+                <button onclick="saveCategory()" class="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">Save</button>
             </div>
         </div>
     </div>
 
     <script>
-        let allTags = [];
-        let allTagSlugs = [];   
+        let allCategories = [];
+        let allCategorySlugs = [];
         let isEditMode = false;
         let currentPage = 1;
         let totalPages = 1;
@@ -192,13 +192,13 @@
             }
         }
 
-        async function loadTags(url = '/event/tags/') {
+        async function loadCategories(url = '/event/categories/') {
             try {
                 const response = await fetch(url);
                 if (response.ok) {
                     const data = await response.json();
-                    allTags = data.results || data;
-                    totalCount = data.count || allTags.length;
+                    allCategories = data.results || data;
+                    totalCount = data.count || allCategories.length;
                     nextUrl = data.next;
                     prevUrl = data.previous;
                     
@@ -209,106 +209,121 @@
                     }
                     
                     totalPages = Math.ceil(totalCount / 10);
-                    renderTags(allTags);
+                    renderCategories(allCategories);
                     updatePaginationControls();
-                    loadAllTagSlugs();
+                    loadAllCategorySlugs();   
                 } else {
-                    showError('Failed to load tags');
+                    showError('Failed to load categories');
                 }
             } catch (error) {
-                console.error('Error loading tags:', error);
-                showError('Error loading tags');
+                console.error('Error loading categories:', error);
+                showError('Error loading categories');
             }
         }
 
-        function renderTags(tags) {
-            const tbody = document.getElementById('tagsTableBody');
+        function loadPage(page) {
+            if (page < 1 || page > totalPages) return;
+            loadCategories(`/event/categories/?page=${page}`);
+        }
+
+        function updatePaginationControls() {
+            document.getElementById('prevBtn').disabled = !prevUrl;
+            document.getElementById('nextBtn').disabled = !nextUrl;
             
-            if (tags.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No tags found</td></tr>';
+            const start = ((currentPage - 1) * 10) + 1;
+            const end = Math.min(currentPage * 10, totalCount);
+            document.getElementById('pageInfo').textContent = `${start}-${end} of ${totalCount}`;
+            document.getElementById('pageNumbers').textContent = `Page ${currentPage} of ${totalPages}`;
+        }
+
+        function renderCategories(categories) {
+            const tbody = document.getElementById('categoriesTableBody');
+            
+            if (categories.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No categories found</td></tr>';
                 return;
             }
+            console.log(categories)
 
             const startIndex = (currentPage - 1) * 10;
-            tbody.innerHTML = tags.map((tag, index) => `
+            tbody.innerHTML = categories.map((cat, index) => `
                 <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm text-gray-900">${ startIndex + index + 1}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${startIndex + index + 1}</td>
                     <td class="px-6 py-4">
-                        <div class="text-sm font-medium text-gray-900">${tag.name}</div>
-                        <div class="text-sm text-gray-500">${tag.slug}</div>
+                        <div class="text-sm font-medium text-gray-900">${cat.name}</div>
+                        <div class="text-sm text-gray-500">${cat.slug}</div>
                     </td>
                     <td class="px-6 py-4">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${tag.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                            ${tag.isActive ? 'Active' : 'Inactive'}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cat.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${cat.isActive ? 'Active' : 'Inactive'}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-900">${new Date(tag.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${new Date(cat.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</td>
                     <td class="px-6 py-4 text-sm font-medium space-x-2">
-                        <button onclick="openEditModal(${tag.id})" class="text-indigo-600 hover:text-indigo-900">Edit</button>
-                        <button onclick="deleteTag(${tag.id})" class="text-red-600 hover:text-red-900">Delete</button>
+                        <button onclick="openEditModal(${cat.id})" class="text-indigo-600 hover:text-indigo-900">Edit</button>
+                        <button onclick="deleteCategory(${cat.id})" class="text-red-600 hover:text-red-900">Delete</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function filterTags() {
+        function filterCategories() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allTags.filter(tag => 
-                tag.name.toLowerCase().includes(searchTerm) ||
-                tag.slug.toLowerCase().includes(searchTerm)
+            const filtered = allCategories.filter(cat => 
+                cat.name.toLowerCase().includes(searchTerm)
             );
-            renderTags(filtered);
+            renderCategories(filtered);
         }
 
         function openAddModal() {
             isEditMode = false;
-            document.getElementById('modalTitle').textContent = 'Add Tag';
-            document.getElementById('tagId').value = '';
-            document.getElementById('tagName').value = '';
-            document.getElementById('tagActive').checked = true;
-            clearTagNameError();
-            document.getElementById('tagModal').classList.remove('hidden');
+            document.getElementById('modalTitle').textContent = 'Add Category';
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryActive').checked = true;
+            clearCategoryNameError();
+            document.getElementById('categoryModal').classList.remove('hidden');
         }
 
-        function openEditModal(tagId) {
+        function openEditModal(categoryId) {
             isEditMode = true;
-            const tag = allTags.find(t => t.id === tagId);
-            if (!tag) return;
+            const category = allCategories.find(c => c.id === categoryId);
+            if (!category) return;
 
-            document.getElementById('modalTitle').textContent = 'Edit Tag';
-            document.getElementById('tagId').value = tag.id;
-            document.getElementById('tagName').value = tag.name;
-            document.getElementById('tagActive').checked = tag.isActive;
-            clearTagNameError();
-            document.getElementById('tagModal').classList.remove('hidden');
+            document.getElementById('modalTitle').textContent = 'Edit Category';
+            document.getElementById('categoryId').value = category.id;
+            document.getElementById('categoryName').value = category.name;
+            document.getElementById('categoryActive').checked = category.isActive;
+            clearCategoryNameError();
+            document.getElementById('categoryModal').classList.remove('hidden');
         }
 
         function closeModal() {
-            document.getElementById('tagModal').classList.add('hidden');
-            clearTagNameError();
+            document.getElementById('categoryModal').classList.add('hidden');
+            clearCategoryNameError();
         }
 
-        async function saveTag() {
-            const name = document.getElementById('tagName').value;
-            const isActive = document.getElementById('tagActive').checked;
+        async function saveCategory() {
+            const name = document.getElementById('categoryName').value;
+            const isActive = document.getElementById('categoryActive').checked;
 
-            const error = validateTagName(name);
-            showTagNameError(error);
+            const error = validateCategoryName(name);
+            showCategoryNameError(error);
             if (error) return;
 
-            const tagData = {
+            const categoryData = {
                 name: name,
                 isActive: isActive
             };
 
             try {
                 const accessToken = localStorage.getItem('access_token');
-                let url = '/event/tags/';
+                let url = '/event/categories/';
                 let method = 'POST';
 
                 if (isEditMode) {
-                    const tagId = document.getElementById('tagId').value;
-                    url = `/event/tags/${tagId}/`;
+                    const categoryId = document.getElementById('categoryId').value;
+                    url = `/event/categories/${categoryId}/`;
                     method = 'PUT';
                 }
 
@@ -318,34 +333,34 @@
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(tagData)
+                    body: JSON.stringify(categoryData)
                 });
 
                 if (response.ok) {
-                    showSuccess(`Tag ${isEditMode ? 'updated' : 'created'} successfully`);
+                    showSuccess(`Category ${isEditMode ? 'updated' : 'created'} successfully`);
                     closeModal();
-                    loadTags();
+                    loadCategories();
                 } else {
                     const errorData = await response.json();
                     if (errorData.name) {
-                        showTagNameError(Array.isArray(errorData.name) ? errorData.name[0] : errorData.name);
+                        showCategoryNameError(Array.isArray(errorData.name) ? errorData.name[0] : errorData.name);
                     } else {
                         const errors = Object.entries(errorData).map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`);
                         showError(errors);
                     }
                 }
             } catch (error) {
-                console.error('Error saving tag:', error);
-                showError('Error saving tag');
+                console.error('Error saving category:', error);
+                showError('Error saving category');
             }
         }
 
-        async function deleteTag(tagId) {
-            if (!confirm('Are you sure you want to delete this tag?')) return;
+        async function deleteCategory(categoryId) {
+            if (!confirm('Are you sure you want to delete this category?')) return;
 
             try {
                 const accessToken = localStorage.getItem('access_token');
-                const response = await fetch(`/event/tags/${tagId}/`, {
+                const response = await fetch(`/event/categories/${categoryId}/`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`
@@ -353,14 +368,14 @@
                 });
 
                 if (response.ok) {
-                    showSuccess('Tag deleted successfully');
-                    loadTags();
+                    showSuccess('Category deleted successfully');
+                    loadCategories();   
                 } else {
-                    showError('Failed to delete tag');
+                    showError('Failed to delete category');
                 }
             } catch (error) {
-                console.error('Error deleting tag:', error);
-                showError('Error deleting tag');
+                console.error('Error deleting category:', error);
+                showError('Error deleting category');
             }
         }
 
@@ -383,27 +398,13 @@
             document.getElementById('successMessage').classList.add('hidden');
         }
 
-        function loadPage(page) {
-            if (page < 1 || page > totalPages) return;
-            loadTags(`/event/tags/?page=${page}`);
-        }
-
-        function updatePaginationControls() {
-            document.getElementById('prevBtn').disabled = !prevUrl;
-            document.getElementById('nextBtn').disabled = !nextUrl;
-            
-            const start = ((currentPage - 1) * 10) + 1;
-            const end = Math.min(currentPage * 10, totalCount);
-            document.getElementById('pageInfo').textContent = `${start}-${end} of ${totalCount}`;
-            document.getElementById('pageNumbers').textContent = `Page ${currentPage} of ${totalPages}`;
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
             const isAdmin = await checkAdmin();
             if (isAdmin) {
-                loadTags();
+                loadCategories();
             }
 
+            // Category name real-time validation 
             function debounce(fn, delay) {
                 let timer;
                 return function (...args) {
@@ -412,14 +413,39 @@
                 };
             }
 
-            const nameInput = document.getElementById('tagName');
+            const nameInput = document.getElementById('categoryName');
             nameInput.addEventListener('input', debounce(function () {
-                showTagNameError(validateTagName(this.value));
+                showCategoryNameError(validateCategoryName(this.value));
             }, 300));
             nameInput.addEventListener('blur', function () {
-                showTagNameError(validateTagName(this.value));
+                showCategoryNameError(validateCategoryName(this.value));
             });
         });
+
+        function validateCategoryName(value) {
+            if (!value || !value.trim())
+                return 'Category name is required.';
+            if (value !== value.trim())
+                return 'Category name cannot have leading or trailing spaces.';
+            if (/ {2,}/.test(value))
+                return 'Category name cannot contain multiple consecutive spaces.';
+            if (value.trim().length < 3)
+                return 'Category name must be at least 3 characters.';
+            if (value.trim().length > 20)
+                return 'Category name cannot exceed 20 characters.';
+            if (!/^[a-zA-Z]+(\s[a-zA-Z]+)*$/.test(value.trim()))
+                return 'Category name can only contain letters and single spaces between words.';
+
+
+            // If same title exist then error
+            const candidateSlug = generateSlug(value);
+            const editingId = isEditMode ? parseInt(document.getElementById('categoryId').value) : null;
+            const duplicate = allCategorySlugs.find(s => s.slug === candidateSlug && s.id !== editingId);
+            if (duplicate)
+                return 'A category with this name already exists.';
+
+            return '';
+        }
 
         function generateSlug(value) {
             return value.trim().toLowerCase()
@@ -428,46 +454,26 @@
                 .replace(/-+/g, '-');
         }
 
-        async function loadAllTagSlugs() {
+        async function loadAllCategorySlugs() {
             try {
-                let url = '/event/tags/';
-                allTagSlugs = [];
+                let url = '/event/categories/';
+                allCategorySlugs = [];
                 while (url) {
                     const response = await fetch(url);
                     if (!response.ok) break;
                     const data = await response.json();
-                    (data.results || data).forEach(t => allTagSlugs.push({ id: t.id, slug: t.slug }));
+                    const items = data.results || data;
+                    items.forEach(c => allCategorySlugs.push({ id: c.id, slug: c.slug }));
                     url = data.next;
                 }
             } catch (e) {
-                console.error('Error loading tag slugs:', e);
+                console.error('Error loading category slugs:', e);
             }
         }
 
-        function validateTagName(value) {
-            if (!value || !value.trim())
-                return 'Tag name is required.';
-            if (value !== value.trim())
-                return 'Tag name cannot have leading or trailing spaces.';
-            if (/ {2,}/.test(value))
-                return 'Tag name cannot contain multiple consecutive spaces.';
-            if (value.trim().length < 3)
-                return 'Tag name must be at least 3 characters.';
-            if (value.trim().length > 20)
-                return 'Tag name cannot exceed 20 characters.';
-            if (!/^[a-zA-Z]+(\s[a-zA-Z]+)*$/.test(value.trim()))
-                return 'Tag name can only contain letters and single spaces between words.';
-            const candidateSlug = generateSlug(value);
-            const editingId = isEditMode ? parseInt(document.getElementById('tagId').value) : null;
-            const duplicate = allTagSlugs.find(s => s.slug === candidateSlug && s.id !== editingId);
-            if (duplicate)
-                return 'A tag with this name already exists.';
-            return '';
-        }
-
-        function showTagNameError(errorMessage) {
-            const input   = document.getElementById('tagName');
-            const errSpan = document.getElementById('tagName-error');
+        function showCategoryNameError(errorMessage) {
+            const input   = document.getElementById('categoryName');
+            const errSpan = document.getElementById('categoryName-error');
             const hasValue = !!input.value;
             input.classList.toggle('border-red-500',   !!errorMessage);
             input.classList.toggle('border-green-500', !errorMessage && hasValue);
@@ -476,9 +482,9 @@
             errSpan.classList.toggle('hidden', !errorMessage);
         }
 
-        function clearTagNameError() {
-            const input   = document.getElementById('tagName');
-            const errSpan = document.getElementById('tagName-error');
+        function clearCategoryNameError() {
+            const input   = document.getElementById('categoryName');
+            const errSpan = document.getElementById('categoryName-error');
             input.classList.remove('border-red-500', 'border-green-500');
             input.classList.add('border-gray-300');
             errSpan.textContent = '';

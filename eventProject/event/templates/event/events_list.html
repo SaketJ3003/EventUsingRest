@@ -11,7 +11,7 @@
         <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
             <h1 class="text-3xl font-mono tracking-tight"><a href="/event/template/events/" class="hover:text-gray-600 transition">EVENTS</a></h1>
             <div class="space-x-4 flex items-center">
-                <a href="/event/admin/dashboard/" class="hidden text-sm text-blue-600 hover:text-blue-900 font-medium" id="adminDashboardBtn">Admin Dashboard</a>
+                <a href="/admin-panel/dashboard/" class="hidden text-sm text-blue-600 hover:text-blue-900 font-medium" id="adminDashboardBtn">Admin Dashboard</a>
                 <a href="/event/template/login/" class="text-sm text-gray-600 hover:text-gray-900">Login</a>
                 <a href="/event/template/signup/" class="text-sm text-gray-600 hover:text-gray-900">Sign Up</a>
                 <button onclick="logout()" class="hidden text-sm text-red-600 hover:text-red-900" id="logoutBtn">Logout</button>
@@ -31,11 +31,11 @@
         </div>
         
         <div id="paginationControls" class="mt-12 flex items-center justify-center gap-4 hidden">
-            <button id="prevBtn" onclick="loadPage('prev')" class="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            <button id="prevBtn" onclick="loadPage('prev')" class="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition">
                 ← Previous
             </button>
             <span id="paginationInfo" class="text-sm text-gray-600"></span>
-            <button id="nextBtn" onclick="loadPage('next')" class="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            <button id="nextBtn" onclick="loadPage('next')" class="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition">
                 Next →
             </button>
         </div>
@@ -102,7 +102,7 @@
             window.location.href = '/event/template/create-event/';
         }
 
-        async function loadEvents(url = '/event/events/') {
+        async function loadEvents(url = '/event/event-cards-list/') {
             try {
                 const accessToken = localStorage.getItem('access_token');
                 const headers = {
@@ -142,11 +142,11 @@
                     document.getElementById('paginationControls').classList.add('hidden');
                     return;
                 }
-                const activeEvents = events.filter(event => event.is_active)
+                {% comment %} const activeEvents = events.filter(event => event.is_active) {% endcomment %}
 
-                const eventsHTML = activeEvents.map(event => {               
+                const eventsHTML = events.map(event => {               
                     return `
-                        <a href="/event/template/events/${event.slug}/" class="group border border-gray-200 rounded-lg overflow-hidden hover:border-gray-400 transition-all duration-300 hover:shadow-lg flex flex-col no-underline ${!event.is_active ? 'opacity-75' : ''}">
+                        <a href="/event/template/events/${event.slug}/" class="group border border-gray-200 rounded-lg overflow-hidden hover:border-gray-400 transition-all duration-300 hover:shadow-lg flex flex-col no-underline ${!event.is_active ? 'hidden' : ''}">
                             <div class="w-full h-56 bg-gray-100 overflow-hidden flex items-center justify-center relative">
                                 ${event.feature_image ? 
                                     `<img src="${event.feature_image}" alt="${event.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='/static/placeholder.png'">` :

@@ -10,9 +10,9 @@
 <body class="bg-gray-50 text-gray-900 font-sans">
     <nav class="border-b border-gray-200 bg-white">
         <div class="max-w-4xl mx-auto px-6 py-6 flex justify-between items-center">
-            <h1 class="text-3xl font-mono tracking-tight"><a href="/event/admin/dashboard/" class="hover:text-gray-600 transition">ADMIN PANEL</a></h1>
+            <h1 class="text-3xl font-mono tracking-tight"><a href="/admin-panel/dashboard/" class="hover:text-gray-600 transition">ADMIN PANEL</a></h1>
             <div class="space-x-4">
-                <a href="/event/admin/dashboard/" class="text-sm text-gray-600 hover:text-gray-900">Dashboard</a>
+                <a href="/admin-panel/dashboard/" class="text-sm text-gray-600 hover:text-gray-900">Dashboard</a>
                 <button onclick="logout()" class="text-sm text-red-600 hover:text-red-900">Logout</button>
             </div>
         </div>
@@ -255,7 +255,7 @@
         }
 
         function goBack() {
-            window.location.href = '/event/admin/dashboard/';
+            window.location.href = '/admin-panel/dashboard/';
         }
 
         async function checkAdmin() {
@@ -654,7 +654,7 @@
 
             if (!slug) {
                 showError('No event slug provided');
-                setTimeout(() => window.location.href = '/event/admin/dashboard/', 2000);
+                setTimeout(() => window.location.href = '/admin-panel/dashboard/', 2000);
                 return;
             }
 
@@ -673,12 +673,12 @@
                     document.getElementById('editEventForm').classList.remove('hidden');
                 } else {
                     showError('Failed to load event data');
-                    setTimeout(() => window.location.href = '/event/admin/dashboard/', 2000);
+                    setTimeout(() => window.location.href = '/admin-panel/dashboard/', 2000);
                 }
             } catch (error) {
                 console.error('Error loading event:', error);
                 showError('Error loading event data');
-                setTimeout(() => window.location.href = '/event/admin/dashboard/', 2000);
+                setTimeout(() => window.location.href = '/admin-panel/dashboard/', 2000);
             }
         }
 
@@ -808,7 +808,7 @@
                 if (response.ok) {
                     showSuccess('Event updated successfully! Redirecting...');
                     setTimeout(() => {
-                        window.location.href = '/event/admin/dashboard/';
+                        window.location.href = '/admin-panel/dashboard/';
                     }, 2000);
                 } else {
                     const contentType = response.headers.get('content-type');
@@ -910,10 +910,10 @@
         }
 
         const eventFieldRules = {
-            title:            { name: 'Title',             required: true,  minLength: 3,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Title must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
-            shortDescription: { name: 'Short description', required: true,  maxLength: 255, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Short Description must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
-            longDescription:  { name: 'Long description',  required: true,  minLength: 20, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Long Description must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
-            venue:            { name: 'Venue',             required: true,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*( [a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Venue must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
+            title:            { name: 'Title',             required: true,  minLength: 3,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*(\s+[a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Title must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
+            shortDescription: { name: 'Short description', required: true,  maxLength: 255, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*(\s+[a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Short Description must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
+            longDescription:  { name: 'Long description',  required: true,  minLength: 20, trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*(\s+[a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Long Description must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
+            venue:            { name: 'Venue',             required: true,  trim: true, noMultiSpace: true, pattern: /^[a-zA-Z][a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]*(\s+[a-zA-Z0-9.,/?;':\u2019"{}[\]\-=_+()&*^%$#@!~`\u2014]+)*$/, patternMessage: 'Venue must start with a letter. Letters, numbers, spaces and special characters (.,/?;\':"{}[]-=_+()&*^%$#@!~`) are allowed.' },
             eventDate:        { name: 'Event date',        required: true },
             startTime:        { name: 'Start time',        required: true },
             endTime:          { name: 'End time',          required: true },
