@@ -1,24 +1,18 @@
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.views import View
-from rest_framework import viewsets, status
+from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
-from .serializers import UserSerializer, CategorySerializer, EventTagSerializer, EventSerializer, LoginSerializer, RefreshTokenSerializer, CountrySerializer, StateSerializer, CitySerializer
+from .serializers import UserSerializer, CategorySerializer, EventTagSerializer, EventSerializer, EventCardSerializer, LoginSerializer, RefreshTokenSerializer, CountrySerializer, StateSerializer, CitySerializer
 from .models import Category, EventTag, Event, Country, State, City
 
 
-class SignUpViewset(viewsets.ViewSet):
+class SignUpViewset(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = [AllowAny]
-    
-    def create(self, request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer_class = UserSerializer
 
 
 class LoginViewSet(viewsets.ViewSet):
@@ -70,7 +64,7 @@ class CategoryViewSet(viewsets.ViewSet):
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(categories, request)
         serializer = CategorySerializer(page, many=True)
-        print(paginator.get_paginated_response(serializer.data))
+        # print(paginator.get_paginated_response(serializer.data))
         return paginator.get_paginated_response(serializer.data)
 
     def create(self, request):
@@ -336,6 +330,64 @@ class EventViewSet(viewsets.ViewSet):
         event = self.get_object(slug)
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class EventCardViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [AllowAny]
+    serializer_class = EventCardSerializer
+    lookup_field = 'slug'
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        events = Event.objects.all().select_related('city', 'state').prefetch_related('category', 'tags')
+
+        if not (self.request.user and self.request.user.is_authenticated and self.request.user.is_staff):
+            events = events.filter(is_active=True)
+
+        search = self.request.query_params.get('search', None)
+        if search:
+            events = events.filter(
+                Q(title__icontains=search) |
+                Q(slug__icontains=search)
+            )
+
+        category = self.request.query_params.get('category', None)
+        if category:
+            events = events.filter(category__name__icontains=category)
+
+        tag = self.request.query_params.get('tag', None)
+        if tag:
+            events = events.filter(tags__name__icontains=tag)
+
+        return events.order_by('event_date')
+    
+class EventCardViewSet2(viewsets.ReadOnlyModelViewSet): # this is for admin when he see users event page
+    permission_classes = [AllowAny]
+    serializer_class = EventCardSerializer
+    lookup_field = 'slug'
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        events = Event.objects.all().select_related('city', 'state').prefetch_related('category', 'tags')
+
+        events = events.filter(is_active=True)
+
+        search = self.request.query_params.get('search', None)
+        if search:
+            events = events.filter(
+                Q(title__icontains=search) |
+                Q(slug__icontains=search)
+            )
+
+        category = self.request.query_params.get('category', None)
+        if category:
+            events = events.filter(category__name__icontains=category)
+
+        tag = self.request.query_params.get('tag', None)
+        if tag:
+            events = events.filter(tags__name__icontains=tag)
+
+        return events.order_by('event_date')
+
 
 class UserStatusViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
@@ -621,45 +673,3 @@ class LoginTemplateView(View):
         return render(request, 'event/login.html')
 
 
-class CreateEventTemplateView(View):
-    def get(self, request):
-        return render(request, 'event/create_event.html')
-
-
-class AdminDashboardView(View):
-    def get(self, request):
-        context = {
-            'events_count': Event.objects.count(),
-            'categories_count': Category.objects.count(),
-            'tags_count': EventTag.objects.count(),
-        }
-        return render(request, 'event/admin_dashboard.html', context)
-
-
-class AdminCategoriesView(View):
-    def get(self, request):
-        return render(request, 'event/admin_categories.html')
-
-
-class AdminTagsView(View):
-    def get(self, request):
-        return render(request, 'event/admin_tags.html')
-
-
-class EditEventTemplateView(View):
-    def get(self, request):
-        return render(request, 'event/edit_event.html')
-
-class AdminCountriesView(View):
-    def get(self, request):
-        return render(request, 'event/admin_countries.html')
-
-
-class AdminStatesView(View):
-    def get(self, request):
-        return render(request, 'event/admin_states.html')
-
-
-class AdminCitiesView(View):
-    def get(self, request):
-        return render(request, 'event/admin_cities.html')

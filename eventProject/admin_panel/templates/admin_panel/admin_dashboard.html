@@ -15,32 +15,32 @@
             <nav class="flex-1 p-4">
                 <ul class="space-y-2">
                     <li>
-                        <a href="/event/admin/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-full bg-gray-700 text-white font-medium">
+                        <a href="/admin-panel/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-full bg-gray-700 text-white font-medium">
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/categories/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/categories/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Categories
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/tags/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/tags/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Tags
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/countries/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/countries/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Countries
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/states/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/states/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             States
                         </a>
                     </li>
                     <li>
-                        <a href="/event/admin/cities/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                        <a href="/admin-panel/cities/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
                             Cities
                         </a>
                     </li>
@@ -65,7 +65,7 @@
                 <div id="errorMessage" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800"></div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white rounded-full shadow p-6 hover:scale-105 transition-transform duration-300">
+                    <a href = "/admin-panel/dashboard/" class="bg-white rounded-full shadow p-6 hover:scale-105 transition-transform duration-300 cursor-default">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm font-medium">Total Events</p>
@@ -93,9 +93,9 @@
                                 </svg>
                             </div>
                         </div>
-                    </div>
+                    </a>
 
-                    <div class="bg-white rounded-full shadow p-6 hover:scale-105 transition-transform duration-300">
+                    <a href = "/admin-panel/categories/" class="bg-white rounded-full shadow p-6 hover:scale-105 transition-transform duration-300 cursor-default">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm font-medium">Total Categories</p>
@@ -107,9 +107,9 @@
                                 </svg>
                             </div>
                         </div>
-                    </div>
+                    </a>
 
-                    <div class="bg-white rounded-full shadow p-6 hover:scale-105 transition-transform duration-300">
+                    <a href = "/admin-panel/tags/" class="bg-white rounded-full shadow p-6 hover:scale-105 transition-transform duration-300 cursor-default">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-gray-500 text-sm font-medium">Total Tags</p>
@@ -121,7 +121,7 @@
                                 </svg>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 <div class="mb-6">
@@ -142,7 +142,7 @@
                         </select>
                     </div>
                     <div class="mt-4 flex justify-end">
-                        <a href="/event/template/create-event/" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition">
+                        <a href="/admin-panel/create-event/" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition">
                             + Create Event
                         </a>
                     </div>
@@ -312,7 +312,7 @@
             });
         }
 
-        async function loadEvents(url = '/event/events/') {
+        async function loadEvents(url = '/event/event-cards/') {
             try {
                 const accessToken = localStorage.getItem('access_token');
                 const response = await fetch(url, {
@@ -406,7 +406,7 @@
                     </td>
                     <td class="px-6 py-4 text-sm font-medium space-x-2">
                         <button onclick="viewEventModal('${event.slug}')" class="text-blue-600 hover:text-blue-900">View</button>
-                        <a href="/event/admin/edit-event/?slug=${event.slug}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                        <a href="/admin-panel/edit-event/?slug=${event.slug}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
                         <button onclick="deleteEvent('${event.slug}')" class="text-red-600 hover:text-red-900">Delete</button>
                     </td>
                 </tr>
