@@ -2,9 +2,9 @@ from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 from .views import (
     SignUpViewset, LoginViewSet, CategoryViewSet, EventTagViewSet, 
-    EventViewSet, EventCardViewSet, RefreshTokenViewSet, EventListView, EventDetailView, 
+    EventViewSet, EventCardListViewSet, RefreshTokenViewSet, EventListView, EventDetailView, 
     SignUpTemplateView, LoginTemplateView, UserStatusViewSet, 
-    CountryViewSet, StateViewSet, CityViewSet,EventCardViewSet2
+    CountryViewSet, StateViewSet, CityViewSet,EventCardViewSet
 )
 
 router = DefaultRouter()
@@ -14,8 +14,8 @@ router.register(r'login', LoginViewSet, basename='login')
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'tags', EventTagViewSet, basename='tags')
 router.register(r'events', EventViewSet, basename='events')
+router.register(r'event-cards-list', EventCardListViewSet, basename='event-cards-list')
 router.register(r'event-cards', EventCardViewSet, basename='event-cards')
-router.register(r'event-cards-list', EventCardViewSet2, basename='event-cards-list')
 router.register(r'refreshToken', RefreshTokenViewSet, basename='refreshToken')
 router.register(r'countries', CountryViewSet, basename='countries')
 router.register(r'states', StateViewSet, basename='states')

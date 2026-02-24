@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
-from .serializers import UserSerializer, CategorySerializer, EventTagSerializer, EventSerializer, EventCardSerializer, LoginSerializer, RefreshTokenSerializer, CountrySerializer, StateSerializer, CitySerializer
+from .serializers import UserSerializer, CategorySerializer, EventTagSerializer, EventSerializer, EventCardSerializer, EventCardListSerializer, LoginSerializer, RefreshTokenSerializer, CountrySerializer, StateSerializer, CitySerializer
 from .models import Category, EventTag, Event, Country, State, City
 
 
@@ -331,14 +331,14 @@ class EventViewSet(viewsets.ViewSet):
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class EventCardViewSet(viewsets.ReadOnlyModelViewSet):
+class EventCardListViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
-    serializer_class = EventCardSerializer
+    serializer_class = EventCardListSerializer
     lookup_field = 'slug'
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        events = Event.objects.all().select_related('city', 'state').prefetch_related('category', 'tags')
+        events = Event.objects.all().select_related('city').prefetch_related('category', 'tags')
 
         if not (self.request.user and self.request.user.is_authenticated and self.request.user.is_staff):
             events = events.filter(is_active=True)
@@ -360,14 +360,14 @@ class EventCardViewSet(viewsets.ReadOnlyModelViewSet):
 
         return events.order_by('event_date')
     
-class EventCardViewSet2(viewsets.ReadOnlyModelViewSet): # this is for admin when he see users event page
+class EventCardViewSet(viewsets.ReadOnlyModelViewSet): # this is for admin when he see users event page
     permission_classes = [AllowAny]
     serializer_class = EventCardSerializer
     lookup_field = 'slug'
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        events = Event.objects.all().select_related('city', 'state').prefetch_related('category', 'tags')
+        events = Event.objects.all().select_related('city', 'state')
 
         events = events.filter(is_active=True)
 
@@ -377,14 +377,6 @@ class EventCardViewSet2(viewsets.ReadOnlyModelViewSet): # this is for admin when
                 Q(title__icontains=search) |
                 Q(slug__icontains=search)
             )
-
-        category = self.request.query_params.get('category', None)
-        if category:
-            events = events.filter(category__name__icontains=category)
-
-        tag = self.request.query_params.get('tag', None)
-        if tag:
-            events = events.filter(tags__name__icontains=tag)
 
         return events.order_by('event_date')
 

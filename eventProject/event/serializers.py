@@ -306,17 +306,13 @@ class CitySerializer(serializers.Serializer):
         return instance
 
 
-class EventCardSerializer(serializers.Serializer):
+class EventCardListSerializer(serializers.Serializer):
     slug = serializers.SlugField(read_only=True)
     title = serializers.CharField(read_only=True)
     is_active = serializers.BooleanField(read_only=True)
-    short_description = serializers.CharField(read_only=True)
     feature_image = serializers.SerializerMethodField()
     event_date = serializers.DateField(read_only=True)
-    start_time = serializers.TimeField(read_only=True)
-    end_time = serializers.TimeField(read_only=True)
     city = serializers.SerializerMethodField()
-    state = serializers.SerializerMethodField()
     views_count = serializers.IntegerField(read_only=True)
     category = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
@@ -344,7 +340,37 @@ class EventCardSerializer(serializers.Serializer):
 
     def get_tags(self, obj):
         return [{'id': tag.id, 'name': tag.name} for tag in obj.tags.all()]
+    
+class EventCardSerializer(serializers.Serializer):
+    slug = serializers.SlugField(read_only=True)
+    title = serializers.CharField(read_only=True)
+    is_active = serializers.BooleanField(read_only=True)
+    short_description = serializers.CharField(read_only=True)
+    feature_image = serializers.SerializerMethodField()
+    event_date = serializers.DateField(read_only=True)
+    start_time = serializers.TimeField(read_only=True)
+    end_time = serializers.TimeField(read_only=True)
+    city = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField()
+    views_count = serializers.IntegerField(read_only=True)
 
+    def get_feature_image(self, obj):
+        if obj.feature_image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.feature_image.url)
+            return obj.feature_image.url
+        return None
+
+    def get_city(self, obj):
+        if obj.city:
+            return {'id': obj.city.id, 'name': obj.city.name}
+        return None
+
+    def get_state(self, obj):
+        if obj.state:
+            return {'id': obj.state.id, 'name': obj.state.name}
+        return None
 
 class EventSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)

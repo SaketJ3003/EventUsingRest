@@ -312,7 +312,7 @@
             });
         }
 
-        async function loadEvents(url = '/event/event-cards/') {
+        async function loadEvents(url = '/event/event-cards-list/') {
             try {
                 const accessToken = localStorage.getItem('access_token');
                 const response = await fetch(url, {
