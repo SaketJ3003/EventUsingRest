@@ -163,6 +163,7 @@
         let totalCount = 0;
         let nextUrl = null;
         let prevUrl = null;
+        let currentBaseUrl = '/event/states/';
 
         function logout() {
             localStorage.removeItem('access_token');
@@ -299,22 +300,13 @@
         }
 
         function filterStates() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const searchTerm = document.getElementById('searchInput').value.trim();
             const countryId = document.getElementById('countryFilter').value;
-            
-            let filtered = allStates;
-            
-            if (searchTerm) {
-                filtered = filtered.filter(state => 
-                    state.name.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            if (countryId) {
-                filtered = filtered.filter(state => state.country_detail && state.country_detail.id == countryId);
-            }
-            
-            renderStates(filtered);
+            const params = new URLSearchParams();
+            if (searchTerm) params.set('search', searchTerm);
+            if (countryId) params.set('country', countryId);
+            currentBaseUrl = '/event/states/?' + params.toString();
+            loadStates(currentBaseUrl);
         }
 
         function openAddModal() {
@@ -443,7 +435,9 @@
 
         function loadPage(page) {
             if (page < 1 || page > totalPages) return;
-            loadStates(`/event/states/?page=${page}`);
+            const url = new URL(currentBaseUrl, window.location.origin);
+            url.searchParams.set('page', page);
+            loadStates(url.toString());
         }
 
         function updatePaginationControls() {

@@ -151,6 +151,7 @@
         let totalCount = 0;
         let nextUrl = null;
         let prevUrl = null;
+        let currentBaseUrl = '/event/tags/';
 
         function logout() {
             localStorage.removeItem('access_token');
@@ -252,12 +253,11 @@
         }
 
         function filterTags() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allTags.filter(tag => 
-                tag.name.toLowerCase().includes(searchTerm) ||
-                tag.slug.toLowerCase().includes(searchTerm)
-            );
-            renderTags(filtered);
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            const params = new URLSearchParams();
+            if (searchTerm) params.set('search', searchTerm);
+            currentBaseUrl = '/event/tags/?' + params.toString();
+            loadTags(currentBaseUrl);
         }
 
         function openAddModal() {
@@ -385,7 +385,9 @@
 
         function loadPage(page) {
             if (page < 1 || page > totalPages) return;
-            loadTags(`/event/tags/?page=${page}`);
+            const url = new URL(currentBaseUrl, window.location.origin);
+            url.searchParams.set('page', page);
+            loadTags(url.toString());
         }
 
         function updatePaginationControls() {

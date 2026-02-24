@@ -147,6 +147,7 @@
         let totalCount = 0;
         let nextUrl = null;
         let prevUrl = null;
+        let currentBaseUrl = '/event/countries/';
 
         function logout() {
             localStorage.removeItem('access_token');
@@ -242,11 +243,11 @@
         }
 
         function filterCountries() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allCountries.filter(country => 
-                country.name.toLowerCase().includes(searchTerm)
-            );
-            renderCountries(filtered);
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            const params = new URLSearchParams();
+            if (searchTerm) params.set('search', searchTerm);
+            currentBaseUrl = '/event/countries/?' + params.toString();
+            loadCountries(currentBaseUrl);
         }
 
         function openAddModal() {
@@ -368,7 +369,9 @@
 
         function loadPage(page) {
             if (page < 1 || page > totalPages) return;
-            loadCountries(`/event/countries/?page=${page}`);
+            const url = new URL(currentBaseUrl, window.location.origin);
+            url.searchParams.set('page', page);
+            loadCountries(url.toString());
         }
 
         function updatePaginationControls() {
