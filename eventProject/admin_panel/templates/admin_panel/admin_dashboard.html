@@ -5,10 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #sidebar {
+            transition: width 0.3s ease, min-width 0.3s ease;
+            overflow: hidden;
+            min-width: 16rem;
+        }
+        #sidebar.collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
     <div class="flex h-screen">
-        <aside class="w-64 bg-gray-800 text-white flex flex-col">
+        <aside id="sidebar" class="w-64 bg-gray-800 text-white flex flex-col">
             <div class="p-6 border-b border-gray-700">
                 <h1 class="text-2xl font-bold">Admin Panel</h1>
             </div>
@@ -16,31 +27,49 @@
                 <ul class="space-y-2">
                     <li>
                         <a href="/admin-panel/dashboard/" class="flex items-center gap-3 px-4 py-3 rounded-full bg-gray-700 text-white font-medium">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
                             Dashboard
                         </a>
                     </li>
                     <li>
                         <a href="/admin-panel/categories/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                            </svg>
                             Categories
                         </a>
                     </li>
                     <li>
                         <a href="/admin-panel/tags/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            </svg>
                             Tags
                         </a>
                     </li>
                     <li>
                         <a href="/admin-panel/countries/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 004 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                             Countries
                         </a>
                     </li>
                     <li>
                         <a href="/admin-panel/states/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                            </svg>
                             States
                         </a>
                     </li>
                     <li>
                         <a href="/admin-panel/cities/" class="flex items-center gap-3 px-4 py-3 rounded-full hover:bg-gray-700 text-gray-300 hover:text-white transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
                             Cities
                         </a>
                     </li>
@@ -48,6 +77,9 @@
             </nav>
             <div class="p-4 border-t border-gray-700">
                 <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-full hover:bg-red-600 text-gray-300 hover:text-white transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
                     Logout
                 </button>
             </div>
@@ -55,7 +87,12 @@
 
         <main class="flex-1 overflow-y-auto">
             <header class="bg-white shadow-sm">
-                <div class="px-8 py-6">
+                <div class="px-8 py-6 flex items-center gap-4">
+                    <button id="sidebarToggleBtn" onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition" title="Toggle sidebar">
+                        <svg id="toggleIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
+                        </svg>
+                    </button>
                     <h2 class="text-2xl font-bold text-gray-900">Events Dashboard</h2>
                 </div>
             </header>
@@ -152,6 +189,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.No</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
@@ -163,7 +201,7 @@
                         </thead>
                         <tbody id="eventsTableBody" class="bg-white divide-y divide-gray-200">
                             <tr>
-                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">Loading events...</td>
+                                <td colspan="8" class="px-6 py-4 text-center text-gray-500">Loading events...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -213,6 +251,17 @@
             previous: null,
             current_page: 1
         };
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.getElementById('toggleIcon');
+            sidebar.classList.toggle('collapsed');
+            if (sidebar.classList.contains('collapsed')) {
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M6 5l7 7-7 7" />`;
+            } else {
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />`;
+            }
+        }
 
         function logout() {
             localStorage.removeItem('access_token');
@@ -323,10 +372,14 @@
 
                 if (response.ok) {
                     const data = await response.json();
+                    const prevPage = data.previous
+                        ? (new URL(data.previous).searchParams.get('page') ? parseInt(new URL(data.previous).searchParams.get('page')) + 1 : 2)
+                        : 1;
                     paginationData = {
                         count: data.count,
                         next: data.next,
-                        previous: data.previous
+                        previous: data.previous,
+                        current_page: prevPage
                     };
                     allEvents = data.results;
                     renderEvents(allEvents);
@@ -357,23 +410,26 @@
             nextBtn.disabled = !paginationData.next;
 
             const totalPages = Math.ceil(paginationData.count / 10);
-            const currentPage = paginationData.previous ? 
+            paginationData.current_page = paginationData.previous ? 
                 (new URL(paginationData.previous).searchParams.get('page') ? parseInt(new URL(paginationData.previous).searchParams.get('page')) + 1 : 2) : 
                 1;
             
-            paginationInfo.textContent = `Showing ${allEvents.length} of ${paginationData.count} events (Page ${currentPage} of ${totalPages})`;
+            paginationInfo.textContent = `Showing ${allEvents.length} of ${paginationData.count} events (Page ${paginationData.current_page} of ${totalPages})`;
         }
 
         function renderEvents(events) {
             const tbody = document.getElementById('eventsTableBody');
             
             if (events.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No events found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-gray-500">No events found</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = events.map(event => `
+            const startIndex = (paginationData.current_page - 1) * 10;
+
+            tbody.innerHTML = events.map((event, index) => `
                 <tr class="hover:scale-105 transition-transform duration-300 ease-in-out cursor-default">
+                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">${startIndex + index + 1}</td>
                     <td class="px-6 py-4">
                         ${event.feature_image 
                             ? `<img src="${event.feature_image}" alt="${event.title}" class="w-14 h-14 object-cover rounded-lg border border-gray-200">` 
@@ -414,29 +470,19 @@
         }
 
         function filterEvents() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const searchTerm = document.getElementById('searchInput').value.trim();
             const categoryFilter = document.getElementById('categoryFilter').value;
             const tagFilter = document.getElementById('tagFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
 
-            let filtered = allEvents.filter(event => {
-                const matchesSearch = event.title.toLowerCase().includes(searchTerm) || 
-                                    event.slug.toLowerCase().includes(searchTerm);
-                
-                const matchesCategory = categoryFilter === 'all' || 
-                                      (event.category && event.category.some(cat => cat.id == categoryFilter));
-                
-                const matchesTag = tagFilter === 'all' || 
-                                 (event.tags && event.tags.some(tag => tag.id == tagFilter));
-                
-                const matchesStatus = statusFilter === 'all' || 
-                                    (statusFilter === 'active' && event.is_active) ||
-                                    (statusFilter === 'inactive' && !event.is_active);
-                
-                return matchesSearch && matchesCategory && matchesTag && matchesStatus;
-            });
+            const params = new URLSearchParams();
+            if (searchTerm) params.set('search', searchTerm);
+            if (categoryFilter !== 'all') params.set('category', categoryFilter);
+            if (tagFilter !== 'all') params.set('tag', tagFilter);
+            if (statusFilter !== 'all') params.set('is_active', statusFilter === 'active' ? 'true' : 'false');
 
-            renderEvents(filtered);
+            const url = `/event/event-cards-list/?${params.toString()}`;
+            loadEvents(url);
         }
 
         async function toggleStatus(eventSlug, isActive) {

@@ -151,6 +151,7 @@
         let totalCount = 0;
         let nextUrl = null;
         let prevUrl = null;
+        let currentBaseUrl = '/event/categories/';
 
         function logout() {
             localStorage.removeItem('access_token');
@@ -223,7 +224,9 @@
 
         function loadPage(page) {
             if (page < 1 || page > totalPages) return;
-            loadCategories(`/event/categories/?page=${page}`);
+            const url = new URL(currentBaseUrl, window.location.origin);
+            url.searchParams.set('page', page);
+            loadCategories(url.toString());
         }
 
         function updatePaginationControls() {
@@ -268,11 +271,11 @@
         }
 
         function filterCategories() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allCategories.filter(cat => 
-                cat.name.toLowerCase().includes(searchTerm)
-            );
-            renderCategories(filtered);
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            const params = new URLSearchParams();
+            if (searchTerm) params.set('search', searchTerm);
+            currentBaseUrl = '/event/categories/?' + params.toString();
+            loadCategories(currentBaseUrl);
         }
 
         function openAddModal() {

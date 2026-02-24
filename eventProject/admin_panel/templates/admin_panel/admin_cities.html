@@ -177,6 +177,7 @@
         let totalCount = 0;
         let nextUrl = null;
         let prevUrl = null;
+        let currentBaseUrl = '/event/cities/';
 
         function logout() {
             localStorage.removeItem('access_token');
@@ -371,22 +372,15 @@
         }
 
         function filterCities() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            const countryId = document.getElementById('countryFilter').value;
             const stateId = document.getElementById('stateFilter').value;
-            
-            let filtered = allCities;
-            
-            if (searchTerm) {
-                filtered = filtered.filter(city => 
-                    city.name.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            if (stateId) {
-                filtered = filtered.filter(city => city.state_detail && city.state_detail.id == stateId);
-            }
-            
-            renderCities(filtered);
+            const params = new URLSearchParams();
+            if (searchTerm) params.set('search', searchTerm);
+            if (countryId) params.set('country', countryId);
+            if (stateId) params.set('state', stateId);
+            currentBaseUrl = '/event/cities/?' + params.toString();
+            loadCities(currentBaseUrl);
         }
 
         function openAddModal() {
@@ -525,7 +519,9 @@
 
         function loadPage(page) {
             if (page < 1 || page > totalPages) return;
-            loadCities(`/event/cities/?page=${page}`);
+            const url = new URL(currentBaseUrl, window.location.origin);
+            url.searchParams.set('page', page);
+            loadCities(url.toString());
         }
 
         function updatePaginationControls() {

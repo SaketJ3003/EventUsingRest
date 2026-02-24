@@ -59,12 +59,15 @@ class CategoryViewSet(viewsets.ViewSet):
     def list(self, request):
         categories = Category.objects.all()
 
+        search = request.query_params.get('search', None)
+        if search:
+            categories = categories.filter(name__icontains=search)
+
         categories = categories.order_by('name')
 
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(categories, request)
         serializer = CategorySerializer(page, many=True)
-        # print(paginator.get_paginated_response(serializer.data))
         return paginator.get_paginated_response(serializer.data)
 
     def create(self, request):
@@ -138,7 +141,11 @@ class EventTagViewSet(viewsets.ViewSet):
 
     def list(self, request):
         tags = EventTag.objects.all()
-        
+
+        search = request.query_params.get('search', None)
+        if search:
+            tags = tags.filter(name__icontains=search)
+
         tags = tags.order_by('name')
 
         paginator = PageNumberPagination()
@@ -342,6 +349,10 @@ class EventCardListViewSet(viewsets.ReadOnlyModelViewSet):
 
         if not (self.request.user and self.request.user.is_authenticated and self.request.user.is_staff):
             events = events.filter(is_active=True)
+        else:
+            is_active = self.request.query_params.get('is_active', None)
+            if is_active is not None:
+                events = events.filter(is_active=is_active.lower() == 'true')
 
         search = self.request.query_params.get('search', None)
         if search:
@@ -352,13 +363,19 @@ class EventCardListViewSet(viewsets.ReadOnlyModelViewSet):
 
         category = self.request.query_params.get('category', None)
         if category:
-            events = events.filter(category__name__icontains=category)
+            if category.isdigit():
+                events = events.filter(category__id=category)
+            else:
+                events = events.filter(category__name__icontains=category)
 
         tag = self.request.query_params.get('tag', None)
         if tag:
-            events = events.filter(tags__name__icontains=tag)
+            if tag.isdigit():
+                events = events.filter(tags__id=tag)
+            else:
+                events = events.filter(tags__name__icontains=tag)
 
-        return events.order_by('event_date')
+        return events.distinct().order_by('event_date')
     
 class EventCardViewSet(viewsets.ReadOnlyModelViewSet): # this is for admin when he see users event page
     permission_classes = [AllowAny]
@@ -403,7 +420,13 @@ class CountryViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
     
     def list(self, request):
-        countries = Country.objects.all().order_by('name')
+        countries = Country.objects.all()
+
+        search = request.query_params.get('search', None)
+        if search:
+            countries = countries.filter(name__icontains=search)
+
+        countries = countries.order_by('name')
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(countries, request)
         serializer = CountrySerializer(page, many=True)
@@ -479,11 +502,17 @@ class StateViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
     
     def list(self, request):
+        states = State.objects.all()
+
         country_id = request.query_params.get('country')
         if country_id:
-            states = State.objects.filter(country_id=country_id).order_by('name')
-        else:
-            states = State.objects.all().order_by('name')
+            states = states.filter(country_id=country_id)
+
+        search = request.query_params.get('search', None)
+        if search:
+            states = states.filter(name__icontains=search)
+
+        states = states.order_by('name')
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(states, request)
         serializer = StateSerializer(page, many=True)
@@ -559,11 +588,21 @@ class CityViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
     
     def list(self, request):
+        cities = City.objects.all()
+
+        country_id = request.query_params.get('country')
+        if country_id:
+            cities = cities.filter(state__country_id=country_id)
+
         state_id = request.query_params.get('state')
         if state_id:
-            cities = City.objects.filter(state_id=state_id).order_by('name')
-        else:
-            cities = City.objects.all().order_by('name')
+            cities = cities.filter(state_id=state_id)
+
+        search = request.query_params.get('search', None)
+        if search:
+            cities = cities.filter(name__icontains=search)
+
+        cities = cities.order_by('name')
         paginator = PageNumberPagination()
         page = paginator.paginate_queryset(cities, request)
         serializer = CitySerializer(page, many=True)
